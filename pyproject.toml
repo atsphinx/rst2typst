@@ -1,0 +1,14 @@
+[project]
+name = "rst2typst"
+version = "0.0.0"
+description = "Converter from docutils AST to Typst source"
+readme = "README.rst"
+requires-python = ">=3.10"
+dependencies = []
+
+[dependency-groups]
+dev = [
+    "doc8>=2.0.0",
+    "ruff>=0.14.14",
+    "ty>=0.0.14",
+]

@@ -1,0 +1,63 @@
+name: 'Run CI jobs'
+
+on:
+  push:
+    branches:
+      - '**'
+    tags-ignore:
+      - '**'
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 9 * * 5' # 18:00 on Friday Asia/Tokyo
+
+env:
+  UV_NO_SYNC: 1
+  GH_TOKEN: ${{ github.token }}
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: aquaproj/aqua-installer@ea518c135a02fc11ff8024364510c181a5c6b342 # v4.0.3
+        with:
+          aqua_version: v2.43.1
+      - name: 'Configure dependencies'
+        run: |
+          task setup-dev
+      - name: 'Run linters'
+        run: |
+          lefthook run pre-commit --all-files
+  # TODO: Write after
+  # source-test:
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     max-parallel: 4
+  #     matrix:
+  #       python-version:
+  #         - '3.10'
+  #         - '3.11'
+  #         - '3.12'
+  #         - '3.13'
+  #         - '3.14'
+  #       workspace: ['locked', 'latest']
+  #   steps:
+  #     - uses: actions/checkout@v5
+  #     - uses: aquaproj/aqua-installer@ea518c135a02fc11ff8024364510c181a5c6b342 # v4.0.3
+  #       with:
+  #         aqua_version: v2.43.1
+  #     - name: 'Stand by python-version'
+  #       run: |
+  #         echo ${{ matrix.python-version }} > .python-version
+  #     - name: 'Configure env as locked deps by uv.lock'
+  #       run: |
+  #         uv sync --all-extras --frozen
+  #       if: ${{ matrix.workspace == 'locked'}}
+  #     - name: 'Configure env as latest deps on PyPI'
+  #       run: |
+  #         uv sync --all-extras --upgrade
+  #       if: ${{ matrix.workspace == 'latest'}}
+  #     - name: 'Run tests'
+  #       run: |
+  #         uv run pytest

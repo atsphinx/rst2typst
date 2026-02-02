@@ -1,0 +1,62 @@
+name: 'Release new version'
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+env:
+  UV_NO_SYNC: 1
+  TASK_X_REMOTE_TASKFILES: 1
+  GH_TOKEN: ${{ github.token }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: aquaproj/aqua-installer@ea518c135a02fc11ff8024364510c181a5c6b342 # v4.0.3
+        with:
+          aqua_version: v2.43.1
+      - name: 'Build package'
+        run: |
+          uv build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: packages-${{ github.ref_name }}
+          path: dist/
+  gh-release:
+    needs: [build]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v5
+        with:
+          name: packages-${{ github.ref_name }}
+          path: dist/
+      - uses: ncipollo/release-action@v1
+        with:
+          artifacts: 'dist/*'
+          bodyFile: '.github/release-body.md'
+          draft: false
+          name: Release ${{ github.ref_name }}
+          tag: ${{ github.ref }}
+          prerelease: false
+  publish-pypi:
+    needs: [build]
+    runs-on: ubuntu-latest
+    if: success() && ${{ needs.prepare.outputs.is-release }}
+    environment:
+      name: 'pypi'
+      url: 'https://pypi.org/p/rst2typst'
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v5
+        with:
+          name: packages-${{ github.ref_name }}
+          path: dist/
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
