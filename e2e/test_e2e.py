@@ -29,6 +29,14 @@ def test_cli(source: Path):
         stderr=subprocess.PIPE,
         text=True,
     )
+    source.with_suffix(".pxml").write_text(
+        subprocess.run(
+            ["rst2pseudoxml", str(source)],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        ).stdout
+    )
     assert proc_rst2typst.returncode == 0
     assert not proc_rst2typst.stderr
     assert proc_rst2typst.stdout == expected
