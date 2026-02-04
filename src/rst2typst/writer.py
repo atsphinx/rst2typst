@@ -19,7 +19,7 @@ class Writer(BaseWriter):
     def translate(self):
         visitor = self.translator_class(self.document)
         self.document.walkabout(visitor)
-        self.output = "\n".join(visitor.body)
+        self.output = "".join(visitor.body)
 
 
 class TypstTranslator(nodes.NodeVisitor):
