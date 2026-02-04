@@ -51,3 +51,28 @@ class TypstTranslator(nodes.NodeVisitor):
     # Refs: https://www.docutils.org/docs/ref/doctree.html#comment
     def visit_comment(self, node: nodes.comment):
         raise nodes.SkipNode
+
+    # Refs:
+    #   - https://www.docutils.org/docs/ref/doctree.html#emphasis
+    #   - https://typst.app/docs/reference/model/emph/
+    def visit_emphasis(self, node: nodes.emphasis):
+        self.body.append("_")
+
+    def depart_emphasis(self, node: nodes.emphasis):
+        self.body.append("_")
+
+    # Refs: https://www.docutils.org/docs/ref/doctree.html#paragraph
+    def visit_paragraph(self, node: nodes.paragraph):
+        pass
+
+    def depart_paragraph(self, node: nodes.paragraph):
+        self.body.append("\n\n")
+
+    # Refs:
+    #   - https://www.docutils.org/docs/ref/doctree.html#strong
+    #   - https://typst.app/docs/reference/model/strong/
+    def visit_strong(self, node: nodes.strong):
+        self.body.append("*")
+
+    def depart_strong(self, node: nodes.strong):
+        self.body.append("*")
