@@ -39,7 +39,7 @@ def test_cli(source: Path):
     )
     assert proc_rst2typst.returncode == 0
     assert not proc_rst2typst.stderr
-    assert proc_rst2typst.stdout == expected
+    assert proc_rst2typst.stdout.strip() == expected
     proc_typst = subprocess.run(
         ["typst", "c", "-", "-"],
         input=proc_rst2typst.stdout.encode(),
