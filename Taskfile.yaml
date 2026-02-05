@@ -6,6 +6,12 @@ tasks:
     cmds:
       - 'uv sync --frozen --all-extras'
       - 'lefthook install'
+  docs-build:
+    desc: 'Build documentation to PDF file'
+    cmds:
+      - 'uv run rst2pseudoxml docs/index.rst docs/index.pxml'
+      - 'uv run rst2typst docs/index.rst docs/index.typ'
+      - 'typst c docs/index.typ docs/index.pdf'
   release-*:
     desc: 'Run release process'
     vars:
