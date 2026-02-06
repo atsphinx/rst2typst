@@ -62,6 +62,24 @@ class TypstTranslator(nodes.NodeVisitor):
         self.body.append("_")
 
     # Refs:
+    #   - https://www.docutils.org/docs/ref/doctree.html#literal
+    #   - https://typst.app/docs/reference/model/raw/
+    def visit_literal(self, node: nodes.literal):
+        # TODO: Correct way to detect language
+        if "code" in node["classes"]:
+            code = node["classes"][-1]
+            self.body.append(f"```{code} ")
+            return
+        self.body.append("`")
+
+    def depart_literal(self, node: nodes.literal):
+        # TODO: Reserve appending text after visit
+        if "code" in node["classes"]:
+            self.body.append("```")
+            return
+        self.body.append("`")
+
+    # Refs:
     #   - https://www.docutils.org/docs/ref/doctree.html#reference
     def visit_reference(self, node: nodes.reference):
         # TODO: Add case for internal links if exists.
