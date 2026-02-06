@@ -17,7 +17,7 @@ class Writer(BaseWriter):
         self.translator_class = TypstTranslator
 
     def translate(self):
-        visitor = self.translator_class(self.document)
+        visitor: TypstTranslator = self.translator_class(self.document)
         self.document.walkabout(visitor)
         self.output = "".join(visitor.body)
 
@@ -48,7 +48,8 @@ class TypstTranslator(nodes.NodeVisitor):
     # For doctree nodes
     # --
 
-    # Refs: https://www.docutils.org/docs/ref/doctree.html#comment
+    # Refs:
+    #   - https://www.docutils.org/docs/ref/doctree.html#comment
     def visit_comment(self, node: nodes.comment):
         raise nodes.SkipNode
 
@@ -72,6 +73,14 @@ class TypstTranslator(nodes.NodeVisitor):
             return
         self.body.append("`")
 
+    # Refs:
+    #   - https://www.docutils.org/docs/ref/doctree.html#paragraph
+    def visit_paragraph(self, node: nodes.paragraph):
+        pass
+
+    def depart_paragraph(self, node: nodes.paragraph):
+        self.body.append("\n\n")
+
     def depart_literal(self, node: nodes.literal):
         # TODO: Reserve appending text after visit
         if "code" in node["classes"]:
@@ -88,13 +97,6 @@ class TypstTranslator(nodes.NodeVisitor):
 
     def depart_reference(self, node: nodes.reference):
         self.body.append("]")
-
-    # Refs: https://www.docutils.org/docs/ref/doctree.html#paragraph
-    def visit_paragraph(self, node: nodes.paragraph):
-        pass
-
-    def depart_paragraph(self, node: nodes.paragraph):
-        self.body.append("\n\n")
 
     # Refs:
     #   - https://www.docutils.org/docs/ref/doctree.html#strong
