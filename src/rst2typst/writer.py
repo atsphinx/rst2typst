@@ -61,6 +61,16 @@ class TypstTranslator(nodes.NodeVisitor):
     def depart_emphasis(self, node: nodes.emphasis):
         self.body.append("_")
 
+    # Refs:
+    #   - https://www.docutils.org/docs/ref/doctree.html#reference
+    def visit_reference(self, node: nodes.reference):
+        # TODO: Add case for internal links if exists.
+        href = node["refuri"]
+        self.body.append(f'#link("{href}")[')
+
+    def depart_reference(self, node: nodes.reference):
+        self.body.append("]")
+
     # Refs: https://www.docutils.org/docs/ref/doctree.html#paragraph
     def visit_paragraph(self, node: nodes.paragraph):
         pass
