@@ -34,29 +34,30 @@ class TypstTranslator(nodes.NodeVisitor):
         self.optional = self.WarningOnly()
         self.body = []
         self.section_level = 0
-        self.text_indent_level = 0
-        self._line_prefix_primary = ""
-        self._line_prefix_secondary = ""
+        self._line_prefixes = [""]
 
     # --
     # State controls
     # ---
 
-    def _set_prefix(self, text: str):
-        self._line_prefix_primary = text
-        self._line_prefix_secondary = " " * len(text)
+    def _push_prefix(self, text: str):
+        self._line_prefixes.append(text)
+
+    def _pop_prefix(self):
+        self._line_prefixes.pop()
 
     # --
     # For base syntax
     # --
 
     def visit_Text(self, node: nodes.Text):
-        prefix_ = " " * self.text_indent_level * 2
+        prefix_ = " " * sum([len(prefix) for prefix in self._line_prefixes[:-1]])
+        midfix_ = self._line_prefixes[-1]
         lines = [
             (
-                f"{prefix_}{self._line_prefix_primary}{t}"
+                f"{prefix_}{midfix_}{t}"
                 if idx == 0
-                else f"{prefix_}{self._line_prefix_secondary}{t}"
+                else f"{prefix_}{' ' * len(midfix_)}{t}"
             )
             for idx, t in enumerate(node.astext().split("\n"))
         ]
@@ -73,7 +74,7 @@ class TypstTranslator(nodes.NodeVisitor):
     #   - https://www.docutils.org/docs/ref/doctree.html#block-quote
     #   - https://typst.app/docs/reference/model/quote/
     def visit_block_quote(self, node: nodes.block_quote):
-        self.text_indent_level += 1
+        self._push_prefix("  ")
         args = []
         attrs = list(node.findall(nodes.attribution))
         if attrs:
@@ -83,17 +84,17 @@ class TypstTranslator(nodes.NodeVisitor):
         self.body.append(f"#quote({' '.join(args)})[\n")
 
     def depart_block_quote(self, node: nodes.block_quote):
-        self.text_indent_level -= 1
+        self._pop_prefix()
         self.body.append("]\n")
 
     # Refs:
     #   - https://www.docutils.org/docs/ref/doctree.html#bullet-list
     #   - https://typst.app/docs/reference/model/list/
     def visit_bullet_list(self, node: nodes.bullet_list):
-        self._set_prefix("- ")
+        self._push_prefix("- ")
 
     def depart_bullet_list(self, node: nodes.bullet_list):
-        self._set_prefix("")
+        self._pop_prefix()
 
     # Refs:
     #   - https://www.docutils.org/docs/ref/doctree.html#comment
@@ -113,10 +114,10 @@ class TypstTranslator(nodes.NodeVisitor):
     #   - https://www.docutils.org/docs/ref/doctree.html#enumerated-list
     #   - https://typst.app/docs/reference/model/enum/
     def visit_enumerated_list(self, node: nodes.enumerated_list):
-        self._set_prefix("+ ")
+        self._push_prefix("+ ")
 
     def depart_enumerated_list(self, node: nodes.enumerated_list):
-        self._set_prefix("")
+        self._pop_prefix()
 
     # Refs:
     #   - https://www.docutils.org/docs/ref/doctree.html#literal
