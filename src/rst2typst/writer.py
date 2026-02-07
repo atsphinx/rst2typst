@@ -34,13 +34,16 @@ class TypstTranslator(nodes.NodeVisitor):
         self.optional = self.WarningOnly()
         self.body = []
         self.section_level = 0
+        self.text_indent_level = 0
 
     # --
     # For base syntax
     # --
 
     def visit_Text(self, node: nodes.Text):
-        self.body.append(node.astext())
+        prefix_ = " " * self.text_indent_level * 2
+        text = "\n".join([f"{prefix_}{t}" for t in node.astext().split("\n")])
+        self.body.append(text)
 
     def depart_Text(self, node: nodes.Text):
         pass
@@ -48,6 +51,23 @@ class TypstTranslator(nodes.NodeVisitor):
     # --
     # For doctree nodes
     # --
+
+    # Refs:
+    #   - https://www.docutils.org/docs/ref/doctree.html#block-quote
+    #   - https://typst.app/docs/reference/model/quote/
+    def visit_block_quote(self, node: nodes.block_quote):
+        self.text_indent_level += 1
+        args = []
+        attrs = list(node.findall(nodes.attribution))
+        if attrs:
+            args.append(f"attribution: [{attrs[0].astext()}]")
+            for a in attrs:
+                node.remove(a)
+        self.body.append(f"#quote({' '.join(args)})[\n")
+
+    def depart_block_quote(self, node: nodes.block_quote):
+        self.text_indent_level -= 1
+        self.body.append("]\n")
 
     # Refs:
     #   - https://www.docutils.org/docs/ref/doctree.html#comment
