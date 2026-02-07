@@ -35,6 +35,16 @@ class TypstTranslator(nodes.NodeVisitor):
         self.body = []
         self.section_level = 0
         self.text_indent_level = 0
+        self._line_prefix_primary = ""
+        self._line_prefix_secondary = ""
+
+    # --
+    # State controls
+    # ---
+
+    def _set_prefix(self, text: str):
+        self._line_prefix_primary = text
+        self._line_prefix_secondary = " " * len(text)
 
     # --
     # For base syntax
@@ -42,8 +52,15 @@ class TypstTranslator(nodes.NodeVisitor):
 
     def visit_Text(self, node: nodes.Text):
         prefix_ = " " * self.text_indent_level * 2
-        text = "\n".join([f"{prefix_}{t}" for t in node.astext().split("\n")])
-        self.body.append(text)
+        lines = [
+            (
+                f"{prefix_}{self._line_prefix_primary}{t}"
+                if idx == 0
+                else f"{prefix_}{self._line_prefix_secondary}{t}"
+            )
+            for idx, t in enumerate(node.astext().split("\n"))
+        ]
+        self.body.append("\n".join(lines))
 
     def depart_Text(self, node: nodes.Text):
         pass
@@ -70,6 +87,15 @@ class TypstTranslator(nodes.NodeVisitor):
         self.body.append("]\n")
 
     # Refs:
+    #   - https://www.docutils.org/docs/ref/doctree.html#bullet-list
+    #   - https://typst.app/docs/reference/model/list/
+    def visit_bullet_list(self, node: nodes.bullet_list):
+        self._set_prefix("- ")
+
+    def depart_bullet_list(self, node: nodes.bullet_list):
+        self._set_prefix("")
+
+    # Refs:
     #   - https://www.docutils.org/docs/ref/doctree.html#comment
     def visit_comment(self, node: nodes.comment):
         raise nodes.SkipNode
@@ -82,6 +108,15 @@ class TypstTranslator(nodes.NodeVisitor):
 
     def depart_emphasis(self, node: nodes.emphasis):
         self.body.append("_")
+
+    # Refs:
+    #   - https://www.docutils.org/docs/ref/doctree.html#enumerated-list
+    #   - https://typst.app/docs/reference/model/enum/
+    def visit_enumerated_list(self, node: nodes.enumerated_list):
+        self._set_prefix("+ ")
+
+    def depart_enumerated_list(self, node: nodes.enumerated_list):
+        self._set_prefix("")
 
     # Refs:
     #   - https://www.docutils.org/docs/ref/doctree.html#literal
