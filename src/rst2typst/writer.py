@@ -74,6 +74,19 @@ class TypstTranslator(nodes.NodeVisitor):
         self.body.append("`")
 
     # Refs:
+    #   - https://www.docutils.org/docs/ref/doctree.html#literal-block
+    #   - https://typst.app/docs/reference/text/raw/
+    def visit_literal_block(self, node: nodes.literal_block):
+        if "code" in node["classes"]:
+            code = node["classes"][-1]
+            self.body.append(f"```{code}\n")
+            return
+        self.body.append("```\n")
+
+    def depart_literal_block(self, node: nodes.literal_block):
+        self.body.append("\n```\n\n")
+
+    # Refs:
     #   - https://www.docutils.org/docs/ref/doctree.html#paragraph
     def visit_paragraph(self, node: nodes.paragraph):
         pass
