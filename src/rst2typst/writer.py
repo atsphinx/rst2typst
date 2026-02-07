@@ -22,22 +22,23 @@ class Writer(BaseWriter):
         self.output = "".join(visitor.body)
 
 
-class Prefixes:
+class Prefixes(list[str]):
     def __init__(self):
-        self._stack: list[str] = [""]
+        super().__init__()
+        self.append("")
 
     def push(self, text: str):
-        self._stack.append(text)
+        self.append(text)
 
-    def pop(self) -> str:
-        return self._stack.pop()
+    def pop(self) -> str:  # type: ignore[invalid-method-override]]
+        return super().pop()
 
     def primary(self) -> str:
-        space = " " * sum(len(s) for s in self._stack[:-1])
-        return f"{space}{self._stack[-1]}"
+        space = " " * sum(len(s) for s in self[:-1])
+        return f"{space}{self[-1]}"
 
     def secondary(self) -> str:
-        return " " * sum(len(s) for s in self._stack)
+        return " " * sum(len(s) for s in self)
 
 
 class TypstTranslator(nodes.NodeVisitor):
@@ -52,7 +53,7 @@ class TypstTranslator(nodes.NodeVisitor):
         self.optional = self.WarningOnly()
         self.body = []
         self.section_level = 0
-        self._line_prefixes = Prefixes()
+        self._prefixes = Prefixes()
 
     # --
     # For base syntax
@@ -60,7 +61,7 @@ class TypstTranslator(nodes.NodeVisitor):
 
     def visit_Text(self, node: nodes.Text):
         self.body.append(
-            f"\n{self._line_prefixes.secondary()}".join(node.astext().split("\n"))
+            f"\n{self._prefixes.secondary()}".join(node.astext().split("\n"))
         )
 
     def depart_Text(self, node: nodes.Text):
@@ -74,7 +75,7 @@ class TypstTranslator(nodes.NodeVisitor):
     #   - https://www.docutils.org/docs/ref/doctree.html#block-quote
     #   - https://typst.app/docs/reference/model/quote/
     def visit_block_quote(self, node: nodes.block_quote):
-        self._line_prefixes.push("  ")
+        self._prefixes.push("  ")
         args = []
         attrs = list(node.findall(nodes.attribution))
         if attrs:
@@ -82,20 +83,20 @@ class TypstTranslator(nodes.NodeVisitor):
             for a in attrs:
                 node.remove(a)
         self.body.append(f"#quote({' '.join(args)})[\n")
-        self.body.append(self._line_prefixes.primary())
+        self.body.append(self._prefixes.primary())
 
     def depart_block_quote(self, node: nodes.block_quote):
-        self._line_prefixes.pop()
+        self._prefixes.pop()
         self.body.append("]\n")
 
     # Refs:
     #   - https://www.docutils.org/docs/ref/doctree.html#bullet-list
     #   - https://typst.app/docs/reference/model/list/
     def visit_bullet_list(self, node: nodes.bullet_list):
-        self._line_prefixes.push("- ")
+        self._prefixes.push("- ")
 
     def depart_bullet_list(self, node: nodes.bullet_list):
-        self._line_prefixes.pop()
+        self._prefixes.pop()
         if isinstance(node.parent, (nodes.document, nodes.section)):
             self.body.append("\n")
 
@@ -117,15 +118,15 @@ class TypstTranslator(nodes.NodeVisitor):
     #   - https://www.docutils.org/docs/ref/doctree.html#enumerated-list
     #   - https://typst.app/docs/reference/model/enum/
     def visit_enumerated_list(self, node: nodes.enumerated_list):
-        self._line_prefixes.push("+ ")
+        self._prefixes.push("+ ")
 
     def depart_enumerated_list(self, node: nodes.enumerated_list):
-        self._line_prefixes.pop()
+        self._prefixes.pop()
         if isinstance(node.parent, (nodes.document, nodes.section)):
             self.body.append("\n")
 
     def visit_list_item(self, node: nodes.list_item):
-        self.body.append(self._line_prefixes.primary())
+        self.body.append(self._prefixes.primary())
 
     # Refs:
     #   - https://www.docutils.org/docs/ref/doctree.html#literal
