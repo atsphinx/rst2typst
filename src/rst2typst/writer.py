@@ -18,7 +18,7 @@ class Writer(BaseWriter):
 
     def translate(self):
         visitor: TypstTranslator = self.translator_class(self.document)
-        self.document.walkabout(visitor)
+        self.document.walkabout(visitor)  # type: ignore[possibly-missing-attribute]
         self.output = "".join(visitor.body)
 
 
