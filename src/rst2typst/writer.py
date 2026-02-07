@@ -33,6 +33,7 @@ class TypstTranslator(nodes.NodeVisitor):
         self.document = document
         self.optional = self.WarningOnly()
         self.body = []
+        self.section_level = 0
 
     # --
     # For base syntax
@@ -111,6 +112,12 @@ class TypstTranslator(nodes.NodeVisitor):
     def depart_reference(self, node: nodes.reference):
         self.body.append("]")
 
+    def visit_section(self, node: nodes.section):
+        self.section_level += 1
+
+    def depart_section(self, node: nodes.section):
+        self.section_level -= 1
+
     # Refs:
     #   - https://www.docutils.org/docs/ref/doctree.html#strong
     #   - https://typst.app/docs/reference/model/strong/
@@ -119,3 +126,16 @@ class TypstTranslator(nodes.NodeVisitor):
 
     def depart_strong(self, node: nodes.strong):
         self.body.append("*")
+
+    def visit_title(self, node: nodes.title):
+        if isinstance(node.parent, nodes.document):
+            self.body.append("#title([")
+        else:
+            prefix = "=" * self.section_level
+            self.body.append(f"{prefix} ")
+
+    def depart_title(self, node: nodes.title):
+        if isinstance(node.parent, nodes.document):
+            self.body.append("])\n\n")
+        else:
+            self.body.append("\n\n")
