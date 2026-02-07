@@ -95,6 +95,8 @@ class TypstTranslator(nodes.NodeVisitor):
 
     def depart_bullet_list(self, node: nodes.bullet_list):
         self._pop_prefix()
+        if isinstance(node.parent, (nodes.document, nodes.section)):
+            self.body.append("\n")
 
     # Refs:
     #   - https://www.docutils.org/docs/ref/doctree.html#comment
@@ -118,6 +120,8 @@ class TypstTranslator(nodes.NodeVisitor):
 
     def depart_enumerated_list(self, node: nodes.enumerated_list):
         self._pop_prefix()
+        if isinstance(node.parent, (nodes.document, nodes.section)):
+            self.body.append("\n")
 
     # Refs:
     #   - https://www.docutils.org/docs/ref/doctree.html#literal
@@ -149,7 +153,9 @@ class TypstTranslator(nodes.NodeVisitor):
         pass
 
     def depart_paragraph(self, node: nodes.paragraph):
-        self.body.append("\n\n")
+        self.body.append("\n")
+        if isinstance(node.parent, (nodes.document, nodes.section)):
+            self.body.append("\n")
 
     def depart_literal(self, node: nodes.literal):
         # TODO: Reserve appending text after visit
