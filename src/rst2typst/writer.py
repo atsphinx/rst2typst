@@ -22,6 +22,24 @@ class Writer(BaseWriter):
         self.output = "".join(visitor.body)
 
 
+class Prefixes:
+    def __init__(self):
+        self._stack: list[str] = [""]
+
+    def push(self, text: str):
+        self._stack.append(text)
+
+    def pop(self) -> str:
+        return self._stack.pop()
+
+    def primary(self) -> str:
+        space = " " * sum(len(s) for s in self._stack[:-1])
+        return f"{space}{self._stack[-1]}"
+
+    def secondary(self) -> str:
+        return " " * sum(len(s) for s in self._stack)
+
+
 class TypstTranslator(nodes.NodeVisitor):
     # NOTE: Guard for NotImplementedError for unknown nodes. Remove as soon as possible.
     class WarningOnly:
@@ -34,34 +52,16 @@ class TypstTranslator(nodes.NodeVisitor):
         self.optional = self.WarningOnly()
         self.body = []
         self.section_level = 0
-        self._line_prefixes = [""]
-
-    # --
-    # State controls
-    # ---
-
-    def _push_prefix(self, text: str):
-        self._line_prefixes.append(text)
-
-    def _pop_prefix(self):
-        self._line_prefixes.pop()
+        self._line_prefixes = Prefixes()
 
     # --
     # For base syntax
     # --
 
     def visit_Text(self, node: nodes.Text):
-        prefix_ = " " * sum([len(prefix) for prefix in self._line_prefixes[:-1]])
-        midfix_ = self._line_prefixes[-1]
-        lines = [
-            (
-                f"{prefix_}{midfix_}{t}"
-                if idx == 0
-                else f"{prefix_}{' ' * len(midfix_)}{t}"
-            )
-            for idx, t in enumerate(node.astext().split("\n"))
-        ]
-        self.body.append("\n".join(lines))
+        self.body.append(
+            f"\n{self._line_prefixes.secondary()}".join(node.astext().split("\n"))
+        )
 
     def depart_Text(self, node: nodes.Text):
         pass
@@ -74,7 +74,7 @@ class TypstTranslator(nodes.NodeVisitor):
     #   - https://www.docutils.org/docs/ref/doctree.html#block-quote
     #   - https://typst.app/docs/reference/model/quote/
     def visit_block_quote(self, node: nodes.block_quote):
-        self._push_prefix("  ")
+        self._line_prefixes.push("  ")
         args = []
         attrs = list(node.findall(nodes.attribution))
         if attrs:
@@ -82,19 +82,20 @@ class TypstTranslator(nodes.NodeVisitor):
             for a in attrs:
                 node.remove(a)
         self.body.append(f"#quote({' '.join(args)})[\n")
+        self.body.append(self._line_prefixes.primary())
 
     def depart_block_quote(self, node: nodes.block_quote):
-        self._pop_prefix()
+        self._line_prefixes.pop()
         self.body.append("]\n")
 
     # Refs:
     #   - https://www.docutils.org/docs/ref/doctree.html#bullet-list
     #   - https://typst.app/docs/reference/model/list/
     def visit_bullet_list(self, node: nodes.bullet_list):
-        self._push_prefix("- ")
+        self._line_prefixes.push("- ")
 
     def depart_bullet_list(self, node: nodes.bullet_list):
-        self._pop_prefix()
+        self._line_prefixes.pop()
         if isinstance(node.parent, (nodes.document, nodes.section)):
             self.body.append("\n")
 
@@ -116,12 +117,15 @@ class TypstTranslator(nodes.NodeVisitor):
     #   - https://www.docutils.org/docs/ref/doctree.html#enumerated-list
     #   - https://typst.app/docs/reference/model/enum/
     def visit_enumerated_list(self, node: nodes.enumerated_list):
-        self._push_prefix("+ ")
+        self._line_prefixes.push("+ ")
 
     def depart_enumerated_list(self, node: nodes.enumerated_list):
-        self._pop_prefix()
+        self._line_prefixes.pop()
         if isinstance(node.parent, (nodes.document, nodes.section)):
             self.body.append("\n")
+
+    def visit_list_item(self, node: nodes.list_item):
+        self.body.append(self._line_prefixes.primary())
 
     # Refs:
     #   - https://www.docutils.org/docs/ref/doctree.html#literal
