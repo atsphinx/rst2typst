@@ -156,6 +156,13 @@ class TypstTranslator(nodes.NodeVisitor):
             return
         self.body.append("`")
 
+    def depart_literal(self, node: nodes.literal):
+        # TODO: Reserve appending text after visit
+        if "code" in node["classes"]:
+            self.body.append("```")
+            return
+        self.body.append("`")
+
     # Refs:
     #   - https://www.docutils.org/docs/ref/doctree.html#literal-block
     #   - https://typst.app/docs/reference/text/raw/
@@ -178,13 +185,6 @@ class TypstTranslator(nodes.NodeVisitor):
         self.body.append("\n")
         if isinstance(node.parent, (nodes.document, nodes.section)):
             self.body.append("\n")
-
-    def depart_literal(self, node: nodes.literal):
-        # TODO: Reserve appending text after visit
-        if "code" in node["classes"]:
-            self.body.append("```")
-            return
-        self.body.append("`")
 
     # Refs:
     #   - https://www.docutils.org/docs/ref/doctree.html#reference
