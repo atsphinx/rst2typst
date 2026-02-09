@@ -1,4 +1,4 @@
-"""Writer for docutils."""
+"""Writer and related classes for docutils."""
 
 from __future__ import annotations
 
@@ -23,6 +23,11 @@ class Writer(BaseWriter):
 
 
 class Prefixes(list[str]):
+    """Controller for line prefixes.
+
+    This class works to render Typst documents for correctly and human readability.
+    """
+
     def __init__(self):
         super().__init__()
         self.append("")
@@ -34,10 +39,12 @@ class Prefixes(list[str]):
         return super().pop()
 
     def primary(self) -> str:
+        """Create line prefix for first line of a block."""
         space = " " * sum(len(s) for s in self[:-1])
         return f"{space}{self[-1]}"
 
     def secondary(self) -> str:
+        """Create line prefix for subsequent lines of a block."""
         return " " * sum(len(s) for s in self)
 
 
@@ -70,6 +77,14 @@ class TypstTranslator(nodes.NodeVisitor):
     # --
     # For doctree nodes
     # --
+    #
+    # This section collects visit/depart methods for built-in doctree nodes.
+    # Methods are sorted by these rules:
+    #
+    #   1. Alphabetical order of nodes.
+    #   2. ``visit_`` is first, and ``depart_`` is second if it is exists.
+    #
+    # It adds reference to pages of docutils and typst before definition of each ``visit_`` methods.
 
     # Refs:
     #   - https://www.docutils.org/docs/ref/doctree.html#block-quote
@@ -125,6 +140,8 @@ class TypstTranslator(nodes.NodeVisitor):
         if isinstance(node.parent, (nodes.document, nodes.section)):
             self.body.append("\n")
 
+    # Refs:
+    #   - https://www.docutils.org/docs/ref/doctree.html#list-item
     def visit_list_item(self, node: nodes.list_item):
         self.body.append(self._prefixes.primary())
 
@@ -179,6 +196,8 @@ class TypstTranslator(nodes.NodeVisitor):
     def depart_reference(self, node: nodes.reference):
         self.body.append("]")
 
+    # Refs:
+    #   - https://www.docutils.org/docs/ref/doctree.html#section
     def visit_section(self, node: nodes.section):
         self.section_level += 1
 
@@ -194,6 +213,9 @@ class TypstTranslator(nodes.NodeVisitor):
     def depart_strong(self, node: nodes.strong):
         self.body.append("*")
 
+    # Refs:
+    #   - https://www.docutils.org/docs/ref/doctree.html#title
+    #   - https://typst.app/docs/reference/model/title/
     def visit_title(self, node: nodes.title):
         if isinstance(node.parent, nodes.document):
             self.body.append("#title([")
