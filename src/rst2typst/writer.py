@@ -7,11 +7,34 @@ from typing import TYPE_CHECKING
 from docutils import nodes
 from docutils.writers import Writer as BaseWriter
 
+from .frontend import validate_comma_separated_int
+
 if TYPE_CHECKING:
     from typing import Any
 
 
 class Writer(BaseWriter):
+    supported = ("typst",)
+
+    settings_spec = BaseWriter.settings_spec + (
+        "Typst Writer Options",
+        None,
+        (
+            (
+                "Section level for page-break",
+                ["--page-break-level"],
+                {
+                    "metavar": "<int>(,<int>)",
+                    "validator": validate_comma_separated_int,
+                },
+            ),
+        ),
+    )
+
+    settings_defaults = {"page_break_level": []}
+
+    config_section = "typst writer"
+
     def __init__(self):
         super().__init__()
         self.translator_class = TypstTranslator
@@ -200,6 +223,11 @@ class TypstTranslator(nodes.NodeVisitor):
     #   - https://www.docutils.org/docs/ref/doctree.html#section
     def visit_section(self, node: nodes.section):
         self.section_level += 1
+        if (
+            self.document.settings.page_break_level
+            and self.section_level in self.document.settings.page_break_level
+        ):
+            self.body.append("#pagebreak()\n\n")
 
     def depart_section(self, node: nodes.section):
         self.section_level -= 1
