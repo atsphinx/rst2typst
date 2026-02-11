@@ -222,6 +222,13 @@ class TypstTranslator(nodes.NodeVisitor):
     def visit_comment(self, node: nodes.comment):
         raise nodes.SkipNode
 
+    # Refs: https://typst.app/docs/reference/model/terms/
+    def visit_field_list(self, node: nodes.field_list):
+        self._hi.push("/ ")
+
+    def depart_field_list(self, node: nodes.field_list):
+        self._hi.pop()
+
     # Refs: https://typst.app/docs/reference/text/raw/
     def visit_literal_block(self, node: nodes.literal_block):
         if "code" in node["classes"]:
@@ -314,6 +321,24 @@ class TypstTranslator(nodes.NodeVisitor):
 
     def depart_caption(self, node: nodes.caption):
         self.body.append("],\n")
+
+    def visit_field_name(self, node: nodes.field_name):
+        pass
+
+    def depart_field_name(self, node: nodes.field_name):
+        self.body.append(": ")
+
+    def visit_field(self, node: nodes.field):
+        self.body.append(self._hi.prefix)
+
+    def depart_field(self, node: nodes.field):
+        pass
+
+    def visit_field_body(self, node: nodes.field_body):
+        pass
+
+    def depart_field_body(self, node: nodes.field_body):
+        pass
 
     def visit_list_item(self, node: nodes.list_item):
         self.body.append(self._hi.prefix)
