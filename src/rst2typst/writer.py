@@ -141,6 +141,12 @@ class TypstTranslator(nodes.NodeVisitor):
     # Structural Subelements
     # ----------------------
 
+    def visit_docinfo(self, node: nodes.docinfo):
+        self._hi.push("/ ")
+
+    def depart_docinfo(self, node: nodes.docinfo):
+        self._hi.pop()
+
     # Refs: https://typst.app/docs/reference/model/title/
     def visit_title(self, node: nodes.title):
         if isinstance(node.parent, nodes.document):
@@ -164,6 +170,33 @@ class TypstTranslator(nodes.NodeVisitor):
     # ----------------------
     #
     # Currently, there are not defined.
+
+    def _visit_bibliographic(self, node: nodes.Bibliographic):
+        title = node.__class__.__name__.title()
+        self.body.append(f"{self._hi.prefix}{title}: ")
+
+    def _depart_bibliographic(self, node: nodes.Bibliographic):
+        self.body.append("\n")
+
+    # Refs: https://typst.app/docs/reference/model/terms/
+    visit_address = _visit_bibliographic
+    depart_address = _depart_bibliographic
+    visit_author = _visit_bibliographic
+    depart_author = _depart_bibliographic
+    visit_contact = _visit_bibliographic
+    depart_contact = _depart_bibliographic
+    visit_copyright = _visit_bibliographic
+    depart_copyright = _depart_bibliographic
+    visit_date = _visit_bibliographic
+    depart_date = _depart_bibliographic
+    visit_organization = _visit_bibliographic
+    depart_organization = _depart_bibliographic
+    visit_revision = _visit_bibliographic
+    depart_revision = _depart_bibliographic
+    visit_status = _visit_bibliographic
+    depart_status = _depart_bibliographic
+    visit_version = _visit_bibliographic
+    depart_version = _depart_bibliographic
 
     # Body Elements
     # -------------
@@ -249,7 +282,6 @@ class TypstTranslator(nodes.NodeVisitor):
         if isinstance(node.parent, (nodes.document, nodes.section)):
             self.body.append("\n")
 
-    # Refs: https://typst.app/docs/reference/model/enum/
     def visit_enumerated_list(self, node: nodes.enumerated_list):
         self._hi.push("+ ")
 
