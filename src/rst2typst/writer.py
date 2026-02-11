@@ -10,7 +10,7 @@ from docutils.writers import Writer as BaseWriter
 from .frontend import validate_comma_separated_int
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, Literal
 
 
 class Writer(BaseWriter):
@@ -291,33 +291,32 @@ class TypstTranslator(nodes.NodeVisitor):
 
     # Inline Elements
     # ---------------
+    def _enclose_content(wrapper: str):
+        def _enclose(self, node: nodes.Inline):
+            self.body.append(wrapper)
+
+        return _enclose, _enclose
 
     # Refs: https://typst.app/docs/reference/model/emph/
-    def visit_emphasis(self, node: nodes.emphasis):
-        self.body.append("_")
-
-    def depart_emphasis(self, node: nodes.emphasis):
-        self.body.append("_")
-
-    # Refs: https://typst.app/docs/reference/model/raw/
-    def visit_literal(self, node: nodes.literal):
-        # TODO: Correct way to detect language
-        if "code" in node["classes"]:
-            code = node["classes"][-1]
-            self.body.append(f"```{code} ")
-            return
-        self.body.append("`")
-
-    def depart_literal(self, node: nodes.literal):
-        # TODO: Reserve appending text after visit
-        if "code" in node["classes"]:
-            self.body.append("```")
-            return
-        self.body.append("`")
+    visit_emphasis, depart_emphasis = _enclose_content("_")
 
     # Refs: https://typst.app/docs/reference/model/strong/
-    def visit_strong(self, node: nodes.strong):
-        self.body.append("*")
+    visit_strong, depart_strong = _enclose_content("*")
 
-    def depart_strong(self, node: nodes.strong):
-        self.body.append("*")
+    def _enclose_literal(walk: Literal["visit", "depart"]):
+        def _enclose(self, node: nodes.literal):
+            closure = "`"
+            # TODO: Correct way to detect language
+            if "code" not in node["classes"]:
+                pass
+            elif walk == "depart":
+                closure = "```"
+            else:
+                closure = f"```{node['classes'][-1]} "
+            self.body.append(closure)
+
+        return _enclose
+
+    # Refs: https://typst.app/docs/reference/model/raw/
+    visit_literal = _enclose_literal("visit")
+    depart_literal = _enclose_literal("depart")
