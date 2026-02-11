@@ -45,6 +45,7 @@ def test_cli(source: Path):
         input=proc_rst2typst.stdout.encode(),
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
+        cwd=source.parent,
     )
     assert proc_typst.returncode == 0
     assert not proc_typst.stderr
