@@ -151,6 +151,12 @@ class TypstTranslator(nodes.NodeVisitor):
     def visit_comment(self, node: nodes.comment):
         raise nodes.SkipNode
 
+    def visit_document(self, node: nodes.document):
+        pass
+
+    def depart_document(self, node: nodes.document):
+        pass
+
     # Refs:
     #   - https://www.docutils.org/docs/ref/doctree.html#emphasis
     #   - https://typst.app/docs/reference/model/emph/
@@ -210,6 +216,9 @@ class TypstTranslator(nodes.NodeVisitor):
     def visit_list_item(self, node: nodes.list_item):
         self.body.append(self._hi.prefix)
 
+    def depart_list_item(self, node: nodes.list_item):
+        pass
+
     # Refs:
     #   - https://www.docutils.org/docs/ref/doctree.html#literal
     #   - https://typst.app/docs/reference/model/raw/
@@ -251,6 +260,14 @@ class TypstTranslator(nodes.NodeVisitor):
         self.body.append("\n")
         if isinstance(node.parent, (nodes.document, nodes.section)):
             self.body.append("\n")
+
+    def visit_raw(self, node: nodes.raw):
+        if "format" in node and node["format"] == "typst":
+            # NOTE: ``self.body.append(node.astext())`` does not work as expected.
+            for line in node.astext().split("\n"):
+                self.body.append(f"{line}\n")
+            self.body.append("\n")
+        raise nodes.SkipNode
 
     # Refs:
     #   - https://www.docutils.org/docs/ref/doctree.html#reference

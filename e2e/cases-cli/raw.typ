@@ -1,0 +1,5 @@
+#image("./figure-sample.png")
+
+#image("./figure-sample.png")
+
+#image("./figure-sample.png")
