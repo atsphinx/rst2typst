@@ -140,6 +140,12 @@ class TypstTranslator(nodes.NodeVisitor):
         if isinstance(node.parent, (nodes.document, nodes.section)):
             self.body.append("\n")
 
+    def visit_caption(self, node: nodes.caption):
+        self.body.append(f"{self._hi.indent}caption: [")
+
+    def depart_caption(self, node: nodes.caption):
+        self.body.append("],\n")
+
     # Refs:
     #   - https://www.docutils.org/docs/ref/doctree.html#comment
     def visit_comment(self, node: nodes.comment):
@@ -164,6 +170,40 @@ class TypstTranslator(nodes.NodeVisitor):
         self._hi.pop()
         if isinstance(node.parent, (nodes.document, nodes.section)):
             self.body.append("\n")
+
+    def visit_figure(self, node: nodes.figure):
+        if self._hi.is_indent_only:
+            self.body.append(self._hi.prefix)
+        self.body.append("#figure(\n")
+        self._hi.push("  ")
+        # Remove reference node between <figure> and <image>
+        if isinstance(node.children[0], nodes.reference):
+            ref = node.children[0]
+            node.remove(ref)
+            for child in reversed(ref.children):
+                node.insert(0, child)
+
+    def depart_figure(self, node: nodes.figure):
+        self._hi.pop()
+        self.body.append(f"{self._hi.indent})\n")
+
+    def visit_image(self, node: nodes.image):
+        if self._hi.is_indent_only:
+            self.body.append(self._hi.prefix)
+        prefix = "#"
+        suffix = "\n\n"
+        if isinstance(node.parent, nodes.figure):
+            prefix = ""
+            suffix = ",\n"
+        self.body.append(f"{prefix}image(\n")
+        self._hi.push("  ")
+        self.body.append(f'{self._hi.indent}"{node["uri"]}",\n')
+        if "alt" in node:
+            self.body.append(f'{self._hi.indent}alt: "{node["alt"]}",\n')
+        if "width" in node:
+            self.body.append(f"{self._hi.indent}width: {node['width']},\n")
+        self._hi.pop()
+        self.body.append(f"{self._hi.indent}){suffix}")
 
     # Refs:
     #   - https://www.docutils.org/docs/ref/doctree.html#list-item
