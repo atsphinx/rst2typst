@@ -100,21 +100,132 @@ class TypstTranslator(nodes.NodeVisitor):
     def depart_Text(self, node: nodes.Text):
         pass
 
-    # --
     # For doctree nodes
-    # --
+    # =================
     #
     # This section collects visit/depart methods for built-in doctree nodes.
     # Methods are sorted by these rules:
     #
-    #   1. Alphabetical order of nodes.
-    #   2. ``visit_`` is first, and ``depart_`` is second if it is exists.
+    #   * The order of "Element Categories" of `doctree page`_.
+    #   * The order of classification of each categories: "empty", "simple", "compound".
+    #   * Alphabetical order of nodes.
+    #   * ``visit_`` is first, and ``depart_`` is second if it is exists.
     #
-    # It adds reference to pages of docutils and typst before definition of each ``visit_`` methods.
+    # It adds reference to pages of typst before definition of each ``visit_`` methods.
+    #
+    # .. _doctree page: https://www.docutils.org/docs/ref/doctree.html
 
-    # Refs:
-    #   - https://www.docutils.org/docs/ref/doctree.html#block-quote
-    #   - https://typst.app/docs/reference/model/quote/
+    # Root Element
+    # ------------
+
+    def visit_document(self, node: nodes.document):
+        pass
+
+    def depart_document(self, node: nodes.document):
+        pass
+
+    # Structural Elements
+    # -------------------
+
+    def visit_section(self, node: nodes.section):
+        self.section_level += 1
+        if (
+            self.document.settings.page_break_level
+            and self.section_level in self.document.settings.page_break_level
+        ):
+            self.body.append("#pagebreak()\n\n")
+
+    def depart_section(self, node: nodes.section):
+        self.section_level -= 1
+
+    # Structural Subelements
+    # ----------------------
+
+    # Refs: https://typst.app/docs/reference/model/title/
+    def visit_title(self, node: nodes.title):
+        if isinstance(node.parent, nodes.document):
+            self.body.append("#title([")
+        else:
+            prefix = "=" * self.section_level
+            self.body.append(f"{prefix} ")
+
+    def depart_title(self, node: nodes.title):
+        if isinstance(node.parent, nodes.document):
+            self.body.append("])\n\n")
+        else:
+            self.body.append("\n\n")
+
+    # Decorative Elements
+    # -------------------
+    #
+    # Currently, there are not defined.
+
+    # Bibliographic Elements
+    # ----------------------
+    #
+    # Currently, there are not defined.
+
+    # Body Elements
+    # -------------
+
+    def visit_image(self, node: nodes.image):
+        if self._hi.is_indent_only:
+            self.body.append(self._hi.prefix)
+        prefix = "#"
+        suffix = "\n\n"
+        if isinstance(node.parent, nodes.figure):
+            prefix = ""
+            suffix = ",\n"
+        self.body.append(f"{prefix}image(\n")
+        self._hi.push("  ")
+        self.body.append(f'{self._hi.indent}"{node["uri"]}",\n')
+        if "alt" in node:
+            self.body.append(f'{self._hi.indent}alt: "{node["alt"]}",\n')
+        if "width" in node:
+            self.body.append(f"{self._hi.indent}width: {node['width']},\n")
+        self._hi.pop()
+        self.body.append(f"{self._hi.indent}){suffix}")
+
+    def visit_comment(self, node: nodes.comment):
+        raise nodes.SkipNode
+
+    # Refs: https://typst.app/docs/reference/text/raw/
+    def visit_literal_block(self, node: nodes.literal_block):
+        if "code" in node["classes"]:
+            code = node["classes"][-1]
+            self.body.append(f"```{code}\n")
+            return
+        self.body.append("```\n")
+
+    def depart_literal_block(self, node: nodes.literal_block):
+        self.body.append("\n```\n\n")
+
+    def visit_paragraph(self, node: nodes.paragraph):
+        if self._hi.is_indent_only():
+            self.body.append(self._hi.indent)
+
+    def depart_paragraph(self, node: nodes.paragraph):
+        self.body.append("\n")
+        if isinstance(node.parent, (nodes.document, nodes.section)):
+            self.body.append("\n")
+
+    def visit_raw(self, node: nodes.raw):
+        if "format" in node and node["format"] == "typst":
+            # NOTE: ``self.body.append(node.astext())`` does not work as expected.
+            for line in node.astext().split("\n"):
+                self.body.append(f"{line}\n")
+            self.body.append("\n")
+        raise nodes.SkipNode
+
+    def visit_reference(self, node: nodes.reference):
+        # TODO: Add case for internal links if exists.
+        href = node["refuri"]
+        self.body.append(f'#link("{href}")[')
+
+    def depart_reference(self, node: nodes.reference):
+        self.body.append("]")
+
+    # Refs: https://typst.app/docs/reference/model/quote/
     def visit_block_quote(self, node: nodes.block_quote):
         self._hi.push("  ")
         args = []
@@ -129,9 +240,7 @@ class TypstTranslator(nodes.NodeVisitor):
         self._hi.pop()
         self.body.append("]\n")
 
-    # Refs:
-    #   - https://www.docutils.org/docs/ref/doctree.html#bullet-list
-    #   - https://typst.app/docs/reference/model/list/
+    # Refs: https://typst.app/docs/reference/model/list/
     def visit_bullet_list(self, node: nodes.bullet_list):
         self._hi.push("- ")
 
@@ -140,35 +249,7 @@ class TypstTranslator(nodes.NodeVisitor):
         if isinstance(node.parent, (nodes.document, nodes.section)):
             self.body.append("\n")
 
-    def visit_caption(self, node: nodes.caption):
-        self.body.append(f"{self._hi.indent}caption: [")
-
-    def depart_caption(self, node: nodes.caption):
-        self.body.append("],\n")
-
-    # Refs:
-    #   - https://www.docutils.org/docs/ref/doctree.html#comment
-    def visit_comment(self, node: nodes.comment):
-        raise nodes.SkipNode
-
-    def visit_document(self, node: nodes.document):
-        pass
-
-    def depart_document(self, node: nodes.document):
-        pass
-
-    # Refs:
-    #   - https://www.docutils.org/docs/ref/doctree.html#emphasis
-    #   - https://typst.app/docs/reference/model/emph/
-    def visit_emphasis(self, node: nodes.emphasis):
-        self.body.append("_")
-
-    def depart_emphasis(self, node: nodes.emphasis):
-        self.body.append("_")
-
-    # Refs:
-    #   - https://www.docutils.org/docs/ref/doctree.html#enumerated-list
-    #   - https://typst.app/docs/reference/model/enum/
+    # Refs: https://typst.app/docs/reference/model/enum/
     def visit_enumerated_list(self, node: nodes.enumerated_list):
         self._hi.push("+ ")
 
@@ -193,35 +274,32 @@ class TypstTranslator(nodes.NodeVisitor):
         self._hi.pop()
         self.body.append(f"{self._hi.indent})\n")
 
-    def visit_image(self, node: nodes.image):
-        if self._hi.is_indent_only:
-            self.body.append(self._hi.prefix)
-        prefix = "#"
-        suffix = "\n\n"
-        if isinstance(node.parent, nodes.figure):
-            prefix = ""
-            suffix = ",\n"
-        self.body.append(f"{prefix}image(\n")
-        self._hi.push("  ")
-        self.body.append(f'{self._hi.indent}"{node["uri"]}",\n')
-        if "alt" in node:
-            self.body.append(f'{self._hi.indent}alt: "{node["alt"]}",\n')
-        if "width" in node:
-            self.body.append(f"{self._hi.indent}width: {node['width']},\n")
-        self._hi.pop()
-        self.body.append(f"{self._hi.indent}){suffix}")
+    # Body Subelements
+    # ----------------
 
-    # Refs:
-    #   - https://www.docutils.org/docs/ref/doctree.html#list-item
+    def visit_caption(self, node: nodes.caption):
+        self.body.append(f"{self._hi.indent}caption: [")
+
+    def depart_caption(self, node: nodes.caption):
+        self.body.append("],\n")
+
     def visit_list_item(self, node: nodes.list_item):
         self.body.append(self._hi.prefix)
 
     def depart_list_item(self, node: nodes.list_item):
         pass
 
-    # Refs:
-    #   - https://www.docutils.org/docs/ref/doctree.html#literal
-    #   - https://typst.app/docs/reference/model/raw/
+    # Inline Elements
+    # ---------------
+
+    # Refs: https://typst.app/docs/reference/model/emph/
+    def visit_emphasis(self, node: nodes.emphasis):
+        self.body.append("_")
+
+    def depart_emphasis(self, node: nodes.emphasis):
+        self.body.append("_")
+
+    # Refs: https://typst.app/docs/reference/model/raw/
     def visit_literal(self, node: nodes.literal):
         # TODO: Correct way to detect language
         if "code" in node["classes"]:
@@ -237,82 +315,9 @@ class TypstTranslator(nodes.NodeVisitor):
             return
         self.body.append("`")
 
-    # Refs:
-    #   - https://www.docutils.org/docs/ref/doctree.html#literal-block
-    #   - https://typst.app/docs/reference/text/raw/
-    def visit_literal_block(self, node: nodes.literal_block):
-        if "code" in node["classes"]:
-            code = node["classes"][-1]
-            self.body.append(f"```{code}\n")
-            return
-        self.body.append("```\n")
-
-    def depart_literal_block(self, node: nodes.literal_block):
-        self.body.append("\n```\n\n")
-
-    # Refs:
-    #   - https://www.docutils.org/docs/ref/doctree.html#paragraph
-    def visit_paragraph(self, node: nodes.paragraph):
-        if self._hi.is_indent_only():
-            self.body.append(self._hi.indent)
-
-    def depart_paragraph(self, node: nodes.paragraph):
-        self.body.append("\n")
-        if isinstance(node.parent, (nodes.document, nodes.section)):
-            self.body.append("\n")
-
-    def visit_raw(self, node: nodes.raw):
-        if "format" in node and node["format"] == "typst":
-            # NOTE: ``self.body.append(node.astext())`` does not work as expected.
-            for line in node.astext().split("\n"):
-                self.body.append(f"{line}\n")
-            self.body.append("\n")
-        raise nodes.SkipNode
-
-    # Refs:
-    #   - https://www.docutils.org/docs/ref/doctree.html#reference
-    def visit_reference(self, node: nodes.reference):
-        # TODO: Add case for internal links if exists.
-        href = node["refuri"]
-        self.body.append(f'#link("{href}")[')
-
-    def depart_reference(self, node: nodes.reference):
-        self.body.append("]")
-
-    # Refs:
-    #   - https://www.docutils.org/docs/ref/doctree.html#section
-    def visit_section(self, node: nodes.section):
-        self.section_level += 1
-        if (
-            self.document.settings.page_break_level
-            and self.section_level in self.document.settings.page_break_level
-        ):
-            self.body.append("#pagebreak()\n\n")
-
-    def depart_section(self, node: nodes.section):
-        self.section_level -= 1
-
-    # Refs:
-    #   - https://www.docutils.org/docs/ref/doctree.html#strong
-    #   - https://typst.app/docs/reference/model/strong/
+    # Refs: https://typst.app/docs/reference/model/strong/
     def visit_strong(self, node: nodes.strong):
         self.body.append("*")
 
     def depart_strong(self, node: nodes.strong):
         self.body.append("*")
-
-    # Refs:
-    #   - https://www.docutils.org/docs/ref/doctree.html#title
-    #   - https://typst.app/docs/reference/model/title/
-    def visit_title(self, node: nodes.title):
-        if isinstance(node.parent, nodes.document):
-            self.body.append("#title([")
-        else:
-            prefix = "=" * self.section_level
-            self.body.append(f"{prefix} ")
-
-    def depart_title(self, node: nodes.title):
-        if isinstance(node.parent, nodes.document):
-            self.body.append("])\n\n")
-        else:
-            self.body.append("\n\n")
