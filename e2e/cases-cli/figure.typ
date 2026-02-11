@@ -4,9 +4,17 @@
   width: 50%,
 )
 
-#figure(
-  image(
+#figure([
+  #image(
     "./figure-sample.png",
-  ),
+  )],
   caption: [Title],
+)
+
+#figure([
+  #link("https://example.com")[
+    #image(
+      "./figure-sample.png",
+    )]],
+  caption: [Next Title],
 )

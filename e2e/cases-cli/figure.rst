@@ -3,6 +3,10 @@
    :width: 50%
 
 .. figure:: ./figure-sample.png
-   :target: https://example.com
 
    Title
+
+.. figure:: ./figure-sample.png
+   :target: https://example.com
+
+   Next Title

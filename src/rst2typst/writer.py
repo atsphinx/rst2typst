@@ -202,14 +202,16 @@ class TypstTranslator(nodes.NodeVisitor):
     # -------------
 
     def visit_image(self, node: nodes.image):
-        if self._hi.is_indent_only:
-            self.body.append(self._hi.prefix)
-        prefix = "#"
+        # FIXME: Implement is too complex.
+        prefix = self._hi.indent
         suffix = "\n\n"
         if isinstance(node.parent, nodes.figure):
-            prefix = ""
-            suffix = ",\n"
-        self.body.append(f"{prefix}image(\n")
+            prefix = f"{prefix}"
+            suffix = "]"
+        elif isinstance(node.parent, nodes.reference):
+            prefix = f"\n{prefix}"
+            suffix = "]"
+        self.body.append(f"{prefix}#image(\n")
         self._hi.push("  ")
         self.body.append(f'{self._hi.indent}"{node["uri"]}",\n')
         if "alt" in node:
@@ -218,6 +220,8 @@ class TypstTranslator(nodes.NodeVisitor):
             self.body.append(f"{self._hi.indent}width: {node['width']},\n")
         self._hi.pop()
         self.body.append(f"{self._hi.indent}){suffix}")
+        if isinstance(node.parent, nodes.reference):
+            self._hi.pop()
 
     def visit_comment(self, node: nodes.comment):
         raise nodes.SkipNode
@@ -298,25 +302,24 @@ class TypstTranslator(nodes.NodeVisitor):
             self.body.append("\n")
 
     def visit_figure(self, node: nodes.figure):
+        # FIXME: Implement is complex.
         if self._hi.is_indent_only:
             self.body.append(self._hi.prefix)
-        self.body.append("#figure(\n")
+        self.body.append("#figure([\n")
         self._hi.push("  ")
-        # Remove reference node between <figure> and <image>
-        if isinstance(node.children[0], nodes.reference):
-            ref = node.children[0]
-            node.remove(ref)
-            for child in reversed(ref.children):
-                node.insert(0, child)
+        if node.first_child_matching_class(nodes.reference) is not None:
+            self.body.append(f"{self._hi.indent}")
+            self._hi.push("  ")
 
     def depart_figure(self, node: nodes.figure):
         self._hi.pop()
-        self.body.append(f"{self._hi.indent})\n")
+        self.body.append(f"{self._hi.indent})\n\n")
 
     # Body Subelements
     # ----------------
 
     def visit_caption(self, node: nodes.caption):
+        self.body.append(",\n")
         self.body.append(f"{self._hi.indent}caption: [")
 
     def depart_caption(self, node: nodes.caption):
