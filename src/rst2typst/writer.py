@@ -45,7 +45,7 @@ class Writer(BaseWriter):
         self.output = "".join(visitor.body)
 
 
-class Prefixes(list[str]):
+class HanglingIndent(list[str]):
     """Controller for line prefixes.
 
     This class works to render Typst documents for correctly and human readability.
@@ -61,14 +61,19 @@ class Prefixes(list[str]):
     def pop(self) -> str:  # type: ignore[invalid-method-override]]
         return super().pop()
 
-    def primary(self) -> str:
-        """Create line prefix for first line of a block."""
+    @property
+    def prefix(self) -> str:
+        """Retrieve prefix with indent for first line of a block."""
         space = " " * sum(len(s) for s in self[:-1])
         return f"{space}{self[-1]}"
 
-    def secondary(self) -> str:
-        """Create line prefix for subsequent lines of a block."""
+    @property
+    def indent(self) -> str:
+        """Retrieve hangling indent for subsequent lines of a block."""
         return " " * sum(len(s) for s in self)
+
+    def is_indent_only(self) -> bool:
+        return self.prefix == self.indent
 
 
 class TypstTranslator(nodes.NodeVisitor):
@@ -83,16 +88,14 @@ class TypstTranslator(nodes.NodeVisitor):
         self.optional = self.WarningOnly()
         self.body = []
         self.section_level = 0
-        self._prefixes = Prefixes()
+        self._hi = HanglingIndent()
 
     # --
     # For base syntax
     # --
 
     def visit_Text(self, node: nodes.Text):
-        self.body.append(
-            f"\n{self._prefixes.secondary()}".join(node.astext().split("\n"))
-        )
+        self.body.append(f"\n{self._hi.indent}".join(node.astext().split("\n")))
 
     def depart_Text(self, node: nodes.Text):
         pass
@@ -113,7 +116,7 @@ class TypstTranslator(nodes.NodeVisitor):
     #   - https://www.docutils.org/docs/ref/doctree.html#block-quote
     #   - https://typst.app/docs/reference/model/quote/
     def visit_block_quote(self, node: nodes.block_quote):
-        self._prefixes.push("  ")
+        self._hi.push("  ")
         args = []
         attrs = list(node.findall(nodes.attribution))
         if attrs:
@@ -121,20 +124,19 @@ class TypstTranslator(nodes.NodeVisitor):
             for a in attrs:
                 node.remove(a)
         self.body.append(f"#quote({' '.join(args)})[\n")
-        self.body.append(self._prefixes.primary())
 
     def depart_block_quote(self, node: nodes.block_quote):
-        self._prefixes.pop()
+        self._hi.pop()
         self.body.append("]\n")
 
     # Refs:
     #   - https://www.docutils.org/docs/ref/doctree.html#bullet-list
     #   - https://typst.app/docs/reference/model/list/
     def visit_bullet_list(self, node: nodes.bullet_list):
-        self._prefixes.push("- ")
+        self._hi.push("- ")
 
     def depart_bullet_list(self, node: nodes.bullet_list):
-        self._prefixes.pop()
+        self._hi.pop()
         if isinstance(node.parent, (nodes.document, nodes.section)):
             self.body.append("\n")
 
@@ -156,17 +158,17 @@ class TypstTranslator(nodes.NodeVisitor):
     #   - https://www.docutils.org/docs/ref/doctree.html#enumerated-list
     #   - https://typst.app/docs/reference/model/enum/
     def visit_enumerated_list(self, node: nodes.enumerated_list):
-        self._prefixes.push("+ ")
+        self._hi.push("+ ")
 
     def depart_enumerated_list(self, node: nodes.enumerated_list):
-        self._prefixes.pop()
+        self._hi.pop()
         if isinstance(node.parent, (nodes.document, nodes.section)):
             self.body.append("\n")
 
     # Refs:
     #   - https://www.docutils.org/docs/ref/doctree.html#list-item
     def visit_list_item(self, node: nodes.list_item):
-        self.body.append(self._prefixes.primary())
+        self.body.append(self._hi.prefix)
 
     # Refs:
     #   - https://www.docutils.org/docs/ref/doctree.html#literal
@@ -202,7 +204,8 @@ class TypstTranslator(nodes.NodeVisitor):
     # Refs:
     #   - https://www.docutils.org/docs/ref/doctree.html#paragraph
     def visit_paragraph(self, node: nodes.paragraph):
-        pass
+        if self._hi.is_indent_only():
+            self.body.append(self._hi.indent)
 
     def depart_paragraph(self, node: nodes.paragraph):
         self.body.append("\n")
