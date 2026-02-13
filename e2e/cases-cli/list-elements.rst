@@ -37,3 +37,12 @@
 -a            command-line option "a"
 -1 file, --one=file, --two file
               Multiple options with arguments.
+
+.. definition list
+
+Term
+  Definition.
+
+Term : classifier
+  The ' : ' indicates a classifier in
+  definition list item terms only.

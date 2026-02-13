@@ -226,6 +226,14 @@ class TypstTranslator(nodes.NodeVisitor):
     def visit_comment(self, node: nodes.comment):
         raise nodes.SkipNode
 
+    def visit_definition_list(self, node: nodes.definition_list):
+        self._hi.push("/ ")
+
+    def depart_definition_list(self, node: nodes.definition_list):
+        self._hi.pop()
+        if isinstance(node.parent, (nodes.document, nodes.section)):
+            self.body.append("\n")
+
     # Refs: https://typst.app/docs/reference/model/terms/
     def visit_field_list(self, node: nodes.field_list):
         self._hi.push("/ ")
@@ -335,6 +343,26 @@ class TypstTranslator(nodes.NodeVisitor):
     def depart_caption(self, node: nodes.caption):
         self.body.append("],\n")
 
+    def visit_classifier(self, node: nodes.classifier):
+        self.body.append(" \\<")
+
+    def depart_classifier(self, node: nodes.classifier):
+        self.body.append("\\>")
+
+    def visit_definition(self, node: nodes.definition):
+        self.body.append(": \\\n")
+        self.body.append(self._hi.indent)
+        pass
+
+    def depart_definition(self, node: nodes.definition):
+        pass
+
+    def visit_definition_list_item(self, node: nodes.definition_list_item):
+        self.body.append(self._hi.prefix)
+
+    def depart_definition_list_item(self, node: nodes.definition_list_item):
+        pass
+
     def visit_description(self, node: nodes.description):
         self.body.append(self._hi.indent)
         pass
@@ -375,6 +403,12 @@ class TypstTranslator(nodes.NodeVisitor):
         self.body.append(self._hi.prefix)
 
     def depart_option_list_item(self, node: nodes.option_list_item):
+        pass
+
+    def visit_term(self, node: nodes.term):
+        pass
+
+    def depart_term(self, node: nodes.term):
         pass
 
     # Inline Elements
