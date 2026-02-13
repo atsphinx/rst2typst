@@ -232,6 +232,8 @@ class TypstTranslator(nodes.NodeVisitor):
 
     def depart_field_list(self, node: nodes.field_list):
         self._hi.pop()
+        if isinstance(node.parent, (nodes.document, nodes.section)):
+            self.body.append("\n")
 
     # Refs: https://typst.app/docs/reference/text/raw/
     def visit_literal_block(self, node: nodes.literal_block):
@@ -243,6 +245,14 @@ class TypstTranslator(nodes.NodeVisitor):
 
     def depart_literal_block(self, node: nodes.literal_block):
         self.body.append("\n```\n\n")
+
+    def visit_option_list(self, node: nodes.option_list):
+        self._hi.push("/ ")
+
+    def depart_option_list(self, node: nodes.option_list):
+        self._hi.pop()
+        if isinstance(node.parent, (nodes.document, nodes.section)):
+            self.body.append("\n")
 
     def visit_paragraph(self, node: nodes.paragraph):
         if self._hi.is_indent_only():
@@ -325,6 +335,13 @@ class TypstTranslator(nodes.NodeVisitor):
     def depart_caption(self, node: nodes.caption):
         self.body.append("],\n")
 
+    def visit_description(self, node: nodes.description):
+        self.body.append(self._hi.indent)
+        pass
+
+    def depart_description(self, node: nodes.description):
+        pass
+
     def visit_field_name(self, node: nodes.field_name):
         pass
 
@@ -347,6 +364,17 @@ class TypstTranslator(nodes.NodeVisitor):
         self.body.append(self._hi.prefix)
 
     def depart_list_item(self, node: nodes.list_item):
+        pass
+
+    def visit_option_group(self, node: nodes.option_group):
+        text = ", ".join([option.astext() for option in node.findall(nodes.option)])
+        self.body.append(f"{text}: \\\n")
+        raise nodes.SkipNode
+
+    def visit_option_list_item(self, node: nodes.option_list_item):
+        self.body.append(self._hi.prefix)
+
+    def depart_option_list_item(self, node: nodes.option_list_item):
         pass
 
     # Inline Elements

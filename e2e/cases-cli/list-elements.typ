@@ -24,3 +24,8 @@
 / Ligature: A merged glyph.
 / Kerning: A spacing adjustment
   between two adjacent letters.
+
+/ -a: \
+  command-line option "a"
+/ -1 file, --one=file, --two file: \
+  Multiple options with arguments.
