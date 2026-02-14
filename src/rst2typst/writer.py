@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import functools
 from typing import TYPE_CHECKING
 
 from docutils import nodes
@@ -10,7 +11,7 @@ from docutils.writers import Writer as BaseWriter
 from .frontend import validate_comma_separated_int
 
 if TYPE_CHECKING:
-    from typing import Any, Literal
+    from typing import Any, Callable, Literal
 
 
 class Writer(BaseWriter):
@@ -89,6 +90,31 @@ class TypstTranslator(nodes.NodeVisitor):
         self.body = []
         self.section_level = 0
         self._hi = HanglingIndent()
+
+    def block_on_structural(func: Callable):
+        def count_linefeed(body: list[str]) -> int:
+            if not body:
+                return 0
+            num = 0
+            if body[-1].endswith("\n"):
+                num += 1
+            if len(body) > 1 and body[-2].startswith("\n"):
+                num += 1
+            return num
+
+        @functools.wraps(func)
+        def _block_on_structural(self, node: nodes.Element):
+            required = (
+                2
+                - count_linefeed(self.body)
+                - int(not isinstance(node.parent, nodes.Structural))
+            )
+            if required > 0:
+                self.body.append("\n" * required)
+
+            func(self, node)
+
+        return _block_on_structural
 
     # --
     # For base syntax
@@ -226,22 +252,20 @@ class TypstTranslator(nodes.NodeVisitor):
     def visit_comment(self, node: nodes.comment):
         raise nodes.SkipNode
 
+    @block_on_structural
     def visit_definition_list(self, node: nodes.definition_list):
         self._hi.push("/ ")
 
     def depart_definition_list(self, node: nodes.definition_list):
         self._hi.pop()
-        if isinstance(node.parent, (nodes.document, nodes.section)):
-            self.body.append("\n")
 
     # Refs: https://typst.app/docs/reference/model/terms/
+    @block_on_structural
     def visit_field_list(self, node: nodes.field_list):
         self._hi.push("/ ")
 
     def depart_field_list(self, node: nodes.field_list):
         self._hi.pop()
-        if isinstance(node.parent, (nodes.document, nodes.section)):
-            self.body.append("\n")
 
     # Refs: https://typst.app/docs/reference/text/raw/
     def visit_literal_block(self, node: nodes.literal_block):
@@ -254,22 +278,19 @@ class TypstTranslator(nodes.NodeVisitor):
     def depart_literal_block(self, node: nodes.literal_block):
         self.body.append("\n```\n\n")
 
+    @block_on_structural
     def visit_option_list(self, node: nodes.option_list):
         self._hi.push("/ ")
 
     def depart_option_list(self, node: nodes.option_list):
         self._hi.pop()
-        if isinstance(node.parent, (nodes.document, nodes.section)):
-            self.body.append("\n")
 
     def visit_paragraph(self, node: nodes.paragraph):
-        if self._hi.is_indent_only():
-            self.body.append(self._hi.indent)
+        pass
 
+    @block_on_structural
     def depart_paragraph(self, node: nodes.paragraph):
-        self.body.append("\n")
-        if isinstance(node.parent, (nodes.document, nodes.section)):
-            self.body.append("\n")
+        pass
 
     def visit_raw(self, node: nodes.raw):
         if "format" in node and node["format"] == "typst":
@@ -297,27 +318,26 @@ class TypstTranslator(nodes.NodeVisitor):
             for a in attrs:
                 node.remove(a)
         self.body.append(f"#quote({' '.join(args)})[\n")
+        self.body.append(self._hi.prefix)
 
     def depart_block_quote(self, node: nodes.block_quote):
         self._hi.pop()
         self.body.append("]\n")
 
     # Refs: https://typst.app/docs/reference/model/list/
+    @block_on_structural
     def visit_bullet_list(self, node: nodes.bullet_list):
         self._hi.push("- ")
 
     def depart_bullet_list(self, node: nodes.bullet_list):
         self._hi.pop()
-        if isinstance(node.parent, (nodes.document, nodes.section)):
-            self.body.append("\n")
 
+    @block_on_structural
     def visit_enumerated_list(self, node: nodes.enumerated_list):
         self._hi.push("+ ")
 
     def depart_enumerated_list(self, node: nodes.enumerated_list):
         self._hi.pop()
-        if isinstance(node.parent, (nodes.document, nodes.section)):
-            self.body.append("\n")
 
     def visit_figure(self, node: nodes.figure):
         # FIXME: Implement is complex.
@@ -357,6 +377,7 @@ class TypstTranslator(nodes.NodeVisitor):
     def depart_definition(self, node: nodes.definition):
         pass
 
+    @block_on_structural
     def visit_definition_list_item(self, node: nodes.definition_list_item):
         self.body.append(self._hi.prefix)
 
@@ -388,6 +409,7 @@ class TypstTranslator(nodes.NodeVisitor):
     def depart_field_body(self, node: nodes.field_body):
         pass
 
+    @block_on_structural
     def visit_list_item(self, node: nodes.list_item):
         self.body.append(self._hi.prefix)
 
@@ -399,6 +421,7 @@ class TypstTranslator(nodes.NodeVisitor):
         self.body.append(f"{text}: \\\n")
         raise nodes.SkipNode
 
+    @block_on_structural
     def visit_option_list_item(self, node: nodes.option_list_item):
         self.body.append(self._hi.prefix)
 
