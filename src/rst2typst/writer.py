@@ -378,7 +378,80 @@ class TypstTranslator(nodes.NodeVisitor):
 
     # Tables
     # ------
-    # TODO: Implement after
+    @block_on_structural
+    def visit_table(self, node: nodes.table):
+        figure_opts = {}
+        if isinstance(node.children[0], nodes.title):
+            figure_opts["caption"] = node.children[0].astext()
+            node.remove(node.children[0])
+        if figure_opts:
+            node["figure_opts"] = figure_opts
+            self.body.append("#figure([\n")
+            self._hi.push("  ")
+        self.body.append(f"{self._hi.indent}#table(\n")
+        self._hi.push("  ")
+
+    def depart_table(self, node: nodes.table):
+        self._hi.pop()
+        self.body.append(f"{self._hi.indent})")
+        if "figure_opts" in node:
+            opts = node["figure_opts"]
+            self.body.append("],")
+            if "caption" in opts:
+                self.body.append(f"\n{self._hi.indent}caption: [{opts['caption']}],\n")
+            self._hi.pop()
+            self.body.append(")")
+        self.body.append("\n")
+
+    def visit_tgroup(self, node: nodes.tgroup):
+        cols = [
+            f"{colspec['colwidth']}fr" if colspec != "auto" else "auto"
+            for colspec in node.findall(nodes.colspec)
+        ]
+        self.body.append(f"{self._hi.indent}columns: ({', '.join(cols)}),\n")
+
+    def depart_tgroup(self, node: nodes.tgroup):
+        pass
+
+    def visit_colspec(self, node: nodes.colspec):
+        raise nodes.SkipNode
+
+    def visit_thead(self, node: nodes.tbody):
+        self.body.append(f"{self._hi.indent}table.header(\n")
+        self._hi.push("  ")
+
+    def depart_thead(self, node: nodes.tbody):
+        self._hi.pop()
+        self.body.append(f"{self._hi.indent}),\n")
+
+    def visit_tbody(self, node: nodes.tbody):
+        pass
+
+    def depart_tbody(self, node: nodes.tbody):
+        pass
+
+    def depart_row(self, node: nodes.tbody):
+        pass
+
+    def departt_row(self, node: nodes.row):
+        pass
+
+    def visit_entry(self, node: nodes.entry):
+        morerows = node.get("morerows", 0)
+        morecols = node.get("morecols", 0)
+        prefix = ""
+        if morerows or morecols:
+            prefix = "table.cell("
+            if morerows:
+                prefix += f"rowspan: {morerows + 1},"
+            if morecols:
+                prefix += f"colspan: {morecols + 1},"
+            prefix += ")"
+
+        self.body.append(f"{self._hi.indent}{prefix}[")
+
+    def depart_entry(self, node: nodes.entry):
+        self.body.append("],\n")
 
     # Explicit Markup Blocks
     # ----------------------
