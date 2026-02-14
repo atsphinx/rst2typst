@@ -92,25 +92,10 @@ class TypstTranslator(nodes.NodeVisitor):
         self._hi = HanglingIndent()
 
     def block_on_structural(func: Callable):
-        def count_linefeed(body: list[str]) -> int:
-            if not body:
-                return 0
-            num = 0
-            if body[-1].endswith("\n"):
-                num += 1
-            if len(body) > 1 and body[-2].startswith("\n"):
-                num += 1
-            return num
-
         @functools.wraps(func)
         def _block_on_structural(self, node: nodes.Element):
-            required = (
-                2
-                - count_linefeed(self.body)
-                - int(not isinstance(node.parent, nodes.Structural))
-            )
-            if required > 0:
-                self.body.append("\n" * required)
+            if isinstance(node.parent, nodes.Structural):
+                self.body.append("\n")
 
             func(self, node)
 
@@ -285,6 +270,7 @@ class TypstTranslator(nodes.NodeVisitor):
     def depart_option_list(self, node: nodes.option_list):
         self._hi.pop()
 
+    @block_on_structural
     def visit_paragraph(self, node: nodes.paragraph):
         pass
 
@@ -309,6 +295,7 @@ class TypstTranslator(nodes.NodeVisitor):
         self.body.append("]")
 
     # Refs: https://typst.app/docs/reference/model/quote/
+    @block_on_structural
     def visit_block_quote(self, node: nodes.block_quote):
         self._hi.push("  ")
         args = []
@@ -322,12 +309,14 @@ class TypstTranslator(nodes.NodeVisitor):
 
     def depart_block_quote(self, node: nodes.block_quote):
         self._hi.pop()
-        self.body.append("]\n")
+        self.body.append("\n]\n")
 
     # Refs: https://typst.app/docs/reference/model/list/
     @block_on_structural
     def visit_bullet_list(self, node: nodes.bullet_list):
         self._hi.push("- ")
+        if isinstance(node.parent, nodes.list_item):
+            self.body.append("\n")
 
     def depart_bullet_list(self, node: nodes.bullet_list):
         self._hi.pop()
@@ -335,6 +324,8 @@ class TypstTranslator(nodes.NodeVisitor):
     @block_on_structural
     def visit_enumerated_list(self, node: nodes.enumerated_list):
         self._hi.push("+ ")
+        if isinstance(node.parent, nodes.list_item):
+            self.body.append("\n")
 
     def depart_enumerated_list(self, node: nodes.enumerated_list):
         self._hi.pop()
@@ -377,16 +368,14 @@ class TypstTranslator(nodes.NodeVisitor):
     def depart_definition(self, node: nodes.definition):
         pass
 
-    @block_on_structural
     def visit_definition_list_item(self, node: nodes.definition_list_item):
         self.body.append(self._hi.prefix)
 
     def depart_definition_list_item(self, node: nodes.definition_list_item):
-        pass
+        self.body.append("\n")
 
     def visit_description(self, node: nodes.description):
         self.body.append(self._hi.indent)
-        pass
 
     def depart_description(self, node: nodes.description):
         pass
@@ -401,7 +390,7 @@ class TypstTranslator(nodes.NodeVisitor):
         self.body.append(self._hi.prefix)
 
     def depart_field(self, node: nodes.field):
-        pass
+        self.body.append("\n")
 
     def visit_field_body(self, node: nodes.field_body):
         pass
@@ -409,24 +398,26 @@ class TypstTranslator(nodes.NodeVisitor):
     def depart_field_body(self, node: nodes.field_body):
         pass
 
-    @block_on_structural
     def visit_list_item(self, node: nodes.list_item):
         self.body.append(self._hi.prefix)
 
     def depart_list_item(self, node: nodes.list_item):
-        pass
+        if (
+            node.first_child_matching_class((nodes.bullet_list, nodes.enumerated_list))
+            is None
+        ):
+            self.body.append("\n")
 
     def visit_option_group(self, node: nodes.option_group):
         text = ", ".join([option.astext() for option in node.findall(nodes.option)])
         self.body.append(f"{text}: \\\n")
         raise nodes.SkipNode
 
-    @block_on_structural
     def visit_option_list_item(self, node: nodes.option_list_item):
         self.body.append(self._hi.prefix)
 
     def depart_option_list_item(self, node: nodes.option_list_item):
-        pass
+        self.body.append("\n")
 
     def visit_term(self, node: nodes.term):
         pass
