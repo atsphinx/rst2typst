@@ -247,10 +247,13 @@ class TypstTranslator(nodes.NodeVisitor):
     # Refs: https://typst.app/docs/reference/model/terms/
     @block_on_structural
     def visit_field_list(self, node: nodes.field_list):
-        self._hi.push("/ ")
+        self.body.append("#table(\n")
+        self._hi.push("  ")
+        self.body.append(f"{self._hi.indent}columns: (1fr, auto),\n")
 
     def depart_field_list(self, node: nodes.field_list):
         self._hi.pop()
+        self.body.append(")")
 
     # Refs: https://typst.app/docs/reference/text/raw/
     def visit_literal_block(self, node: nodes.literal_block):
@@ -380,23 +383,35 @@ class TypstTranslator(nodes.NodeVisitor):
     def depart_description(self, node: nodes.description):
         pass
 
-    def visit_field_name(self, node: nodes.field_name):
-        pass
-
-    def depart_field_name(self, node: nodes.field_name):
-        self.body.append(": ")
-
     def visit_field(self, node: nodes.field):
-        self.body.append(self._hi.prefix)
+        pass
 
     def depart_field(self, node: nodes.field):
-        self.body.append("\n")
+        pass
+
+    def visit_field_name(self, node: nodes.field_name):
+        if isinstance(node.parent.parent, nodes.docinfo):
+            self.body.append("/ ")
+            return
+        self.body.append(self._hi.indent)
+        self.body.append("[")
+
+    def depart_field_name(self, node: nodes.field_name):
+        if isinstance(node.parent.parent, nodes.docinfo):
+            self.body.append(": ")
+            return
+        self.body.append("],\n")
 
     def visit_field_body(self, node: nodes.field_body):
-        pass
+        if isinstance(node.parent.parent, nodes.docinfo):
+            return
+        self.body.append(self._hi.indent)
+        self.body.append("[")
 
     def depart_field_body(self, node: nodes.field_body):
-        pass
+        if isinstance(node.parent.parent, nodes.docinfo):
+            return
+        self.body.append("],\n")
 
     def visit_list_item(self, node: nodes.list_item):
         self.body.append(self._hi.prefix)

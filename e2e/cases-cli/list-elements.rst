@@ -25,13 +25,6 @@
   #. This is second item.
   #. This is third item.
 
-.. field list
-
-:date: 2026-02-12
-:Ligature: A merged glyph.
-:Kerning: A spacing adjustment
-  between two adjacent letters.
-
 .. option list
 
 -a            command-line option "a"
@@ -46,3 +39,10 @@ Term
 Term : classifier
   The ' : ' indicates a classifier in
   definition list item terms only.
+
+.. field list
+
+:date: 2026-02-12
+:Ligature: A merged glyph.
+:Kerning: A spacing adjustment
+  between two adjacent letters.
