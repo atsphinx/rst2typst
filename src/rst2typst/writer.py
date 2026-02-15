@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import functools
+import textwrap
 from typing import TYPE_CHECKING
 
 from docutils import nodes
@@ -12,6 +13,80 @@ from .frontend import validate_comma_separated_int
 
 if TYPE_CHECKING:
     from typing import Any, Callable, Literal
+
+ADMONITION_TYPES = {
+    "attention": {
+        "stroke": "orange.darken(30%)",
+        "bg": "yellow.lighten(95%)",
+        "icon": "❗",
+    },
+    "caution": {
+        "stroke": "orange.darken(20%)",
+        "bg": "yellow.lighten(90%)",
+        "icon": "🔶",
+    },
+    "danger": {
+        "stroke": "red.darken(10%)",
+        "bg": "red.lighten(90%)",
+        "icon": "❌",
+    },
+    "error": {
+        "stroke": "red.darken(10%)",
+        "bg": "red.lighten(95%)",
+        "icon": "🚫",
+    },
+    "hint": {
+        "stroke": "green.darken(10%)",
+        "bg": "green.lighten(95%)",
+        "icon": "🔍",
+    },
+    "important": {
+        "stroke": "purple.darken(10%)",
+        "bg": "purple.lighten(95%)",
+        "icon": "❕",
+    },
+    "note": {
+        "stroke": "blue.darken(20%)",
+        "bg": "blue.lighten(95%)",
+        "icon": "ℹ️",
+    },
+    "tip": {
+        "stroke": "green.darken(20%)",
+        "bg": "green.lighten(95%)",
+        "icon": "💡",
+    },
+    "warning": {
+        "stroke": "orange.darken(10%)",
+        "bg": "orange.lighten(90%)",
+        "icon": "⚠️",
+    },
+}
+ADMONITION_PROLOGUE = """
+#pad(
+  left: 5%,
+  block(
+    stroke: (left: 4pt + {stroke}),
+    fill: {bg},
+    width: 90%,
+    inset: (x: 1em, y: 0.8em),
+    radius: 1pt,
+    breakable: true,
+    [
+      {icon}#h(0.5em)#text(
+        weight: "extrabold",
+        [{title}],
+      )
+      #v(0.4em)
+      #text(
+        size: 0.9em,
+      )[
+"""
+ADMONITION_EPILOGUE = """
+      ]
+    ]
+  )
+)
+"""
 
 
 class Writer(BaseWriter):
@@ -512,7 +587,44 @@ class TypstTranslator(nodes.NodeVisitor):
 
     # Admonitions
     # ===========
-    # TODO: Implement after
+    def _enclose_admonition(node_name: str, title: str | None = None):
+        default_options = ADMONITION_TYPES["note"]
+        options = ADMONITION_TYPES.get(node_name, default_options)
+
+        def _visit(self, node: nodes.Element):
+            nonlocal title
+            if isinstance(node.parent, nodes.Structural):
+                self.body.append("\n")
+
+            title_idx = node.first_child_matching_class(nodes.title)
+            if title_idx is not None:
+                title = node.children[title_idx].astext()
+                node.remove(node.children[title_idx])
+
+            text = f"\n{self._hi.indent}".join(
+                textwrap.dedent(ADMONITION_PROLOGUE).strip().split("\n")
+            ).format(title=title, **options)
+            self.body.append(f"{self._hi.indent}{text}")
+
+        def _depart(self, node: nodes.Element):
+            text = f"\n{self._hi.indent}".join(
+                textwrap.dedent(ADMONITION_EPILOGUE).strip().split("\n")
+            )
+            self.body.append(text)
+            self.body.append("\n")
+
+        return _visit, _depart
+
+    visit_attention, depart_attention = _enclose_admonition("attention", "Attention")
+    visit_caution, depart_caution = _enclose_admonition("caution", "Caution")
+    visit_danger, depart_danger = _enclose_admonition("danger", "Danger")
+    visit_error, depart_error = _enclose_admonition("error", "Error")
+    visit_hint, depart_hint = _enclose_admonition("hint", "Hint")
+    visit_important, depart_important = _enclose_admonition("important", "Important")
+    visit_note, depart_note = _enclose_admonition("note", "Note")
+    visit_tip, depart_tip = _enclose_admonition("tip", "Tip")
+    visit_warning, depart_warning = _enclose_admonition("warning", "Warning")
+    visit_admonition, depart_admonition = _enclose_admonition("admonition")
 
     # Images
     # ======
