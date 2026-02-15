@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import functools
+import textwrap
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -47,10 +48,18 @@ class Writer(BaseWriter):
         visitor: TypstTranslator = self.translator_class(self.document)
         self.document.walkabout(visitor)  # type: ignore[possibly-missing-attribute]
         self.parts["body"] = "".join(visitor.body)
-        self.parts["includes"] = {i: i.read_text() for i in visitor.includes}
-        self.output = "\n".join(self.parts["includes"].values())
-        self.output += "\n"
-        self.output += self.parts["body"]
+        self.parts["imports"] = "\n".join(
+            [f'#import "{name}": {symbol}' for name, symbol in visitor.imports]
+        )
+        self.parts["includes"] = "\n".join([i.read_text() for i in visitor.includes])
+        self.output = textwrap.dedent(
+            """
+        {imports}
+        {includes}
+        
+        {body}
+        """.format(**self.parts)
+        )
 
 
 class HanglingIndent(list[str]):
@@ -95,6 +104,7 @@ class TypstTranslator(nodes.NodeVisitor):
         self.document = document
         self.optional = self.WarningOnly()
         self.includes: set[Path] = set()
+        self.imports: set[tuple[str, str]] = set()
         self.body = []
         self.section_level = 0
         self._hi = HanglingIndent()
@@ -357,6 +367,19 @@ class TypstTranslator(nodes.NodeVisitor):
     def depart_literal_block(self, node: nodes.literal_block):
         self.body.append("\n```\n\n")
 
+    # Math
+    # ----
+    @block_on_structural
+    def visit_math_block(self, node: nodes.math):
+        self.imports.add(("@preview/mitex:0.2.6", "*"))
+        self.body.append(f"{self._hi.indent}#mitex(`\n")
+        self._hi.push("  ")
+        self.body.append(self._hi.indent)
+
+    def depart_math_block(self, node: nodes.math):
+        self._hi.pop()
+        self.body.append(f"\n{self._hi.indent}`)\n")
+
     # Line Blocks
     # -----------
     # TODO: Implement after
@@ -497,6 +520,13 @@ class TypstTranslator(nodes.NodeVisitor):
     # Refs: https://typst.app/docs/reference/model/raw/
     visit_literal = _enclose_literal("visit")
     depart_literal = _enclose_literal("depart")
+
+    def visit_math(self, node: nodes.math):
+        self.imports.add(("@preview/mitex:0.2.6", "*"))
+        self.body.append("#mi(`")
+
+    def depart_math(self, node: nodes.math):
+        self.body.append("`)")
 
     def visit_reference(self, node: nodes.reference):
         # TODO: Add case for internal links if exists.
