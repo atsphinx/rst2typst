@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import functools
-import textwrap
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from docutils import nodes
@@ -13,80 +13,6 @@ from .frontend import validate_comma_separated_int
 
 if TYPE_CHECKING:
     from typing import Any, Callable, Literal
-
-ADMONITION_TYPES = {
-    "attention": {
-        "stroke": "orange.darken(30%)",
-        "bg": "yellow.lighten(95%)",
-        "icon": "❗",
-    },
-    "caution": {
-        "stroke": "orange.darken(20%)",
-        "bg": "yellow.lighten(90%)",
-        "icon": "🔶",
-    },
-    "danger": {
-        "stroke": "red.darken(10%)",
-        "bg": "red.lighten(90%)",
-        "icon": "❌",
-    },
-    "error": {
-        "stroke": "red.darken(10%)",
-        "bg": "red.lighten(95%)",
-        "icon": "🚫",
-    },
-    "hint": {
-        "stroke": "green.darken(10%)",
-        "bg": "green.lighten(95%)",
-        "icon": "🔍",
-    },
-    "important": {
-        "stroke": "purple.darken(10%)",
-        "bg": "purple.lighten(95%)",
-        "icon": "❕",
-    },
-    "note": {
-        "stroke": "blue.darken(20%)",
-        "bg": "blue.lighten(95%)",
-        "icon": "ℹ️",
-    },
-    "tip": {
-        "stroke": "green.darken(20%)",
-        "bg": "green.lighten(95%)",
-        "icon": "💡",
-    },
-    "warning": {
-        "stroke": "orange.darken(10%)",
-        "bg": "orange.lighten(90%)",
-        "icon": "⚠️",
-    },
-}
-ADMONITION_PROLOGUE = """
-#pad(
-  left: 5%,
-  block(
-    stroke: (left: 4pt + {stroke}),
-    fill: {bg},
-    width: 90%,
-    inset: (x: 1em, y: 0.8em),
-    radius: 1pt,
-    breakable: true,
-    [
-      {icon}#h(0.5em)#text(
-        weight: "extrabold",
-        [{title}],
-      )
-      #v(0.4em)
-      #text(
-        size: 0.9em,
-      )[
-"""
-ADMONITION_EPILOGUE = """
-      ]
-    ]
-  )
-)
-"""
 
 
 class Writer(BaseWriter):
@@ -111,6 +37,8 @@ class Writer(BaseWriter):
 
     config_section = "typst writer"
 
+    visitor_attributes = {"body", "includes"}
+
     def __init__(self):
         super().__init__()
         self.translator_class = TypstTranslator
@@ -118,7 +46,11 @@ class Writer(BaseWriter):
     def translate(self):
         visitor: TypstTranslator = self.translator_class(self.document)
         self.document.walkabout(visitor)  # type: ignore[possibly-missing-attribute]
-        self.output = "".join(visitor.body)
+        self.parts["body"] = "".join(visitor.body)
+        self.parts["includes"] = {i: i.read_text() for i in visitor.includes}
+        self.output = "\n".join(self.parts["includes"].values())
+        self.output += "\n"
+        self.output += self.parts["body"]
 
 
 class HanglingIndent(list[str]):
@@ -162,6 +94,7 @@ class TypstTranslator(nodes.NodeVisitor):
         super().__init__(document)
         self.document = document
         self.optional = self.WarningOnly()
+        self.includes: set[Path] = set()
         self.body = []
         self.section_level = 0
         self._hi = HanglingIndent()
@@ -588,10 +521,10 @@ class TypstTranslator(nodes.NodeVisitor):
     # Admonitions
     # ===========
     def _enclose_admonition(node_name: str, title: str | None = None):
-        default_options = ADMONITION_TYPES["note"]
-        options = ADMONITION_TYPES.get(node_name, default_options)
-
         def _visit(self, node: nodes.Element):
+            module_path = Path(__file__).parent / "admonition.typ"
+            self.includes.add(module_path)
+
             nonlocal title
             if isinstance(node.parent, nodes.Structural):
                 self.body.append("\n")
@@ -601,17 +534,15 @@ class TypstTranslator(nodes.NodeVisitor):
                 title = node.children[title_idx].astext()
                 node.remove(node.children[title_idx])
 
-            text = f"\n{self._hi.indent}".join(
-                textwrap.dedent(ADMONITION_PROLOGUE).strip().split("\n")
-            ).format(title=title, **options)
-            self.body.append(f"{self._hi.indent}{text}")
+            self.body.append(f"{self._hi.indent}#admonition-callout(\n")
+            self._hi.push("  ")
+            self.body.append(f'{self._hi.indent}"{node_name}", "{title}",\n')
+            self.body.append(f"{self._hi.indent}[")
 
         def _depart(self, node: nodes.Element):
-            text = f"\n{self._hi.indent}".join(
-                textwrap.dedent(ADMONITION_EPILOGUE).strip().split("\n")
-            )
-            self.body.append(text)
-            self.body.append("\n")
+            self.body.append("],\n")
+            self._hi.pop()
+            self.body.append(f"{self._hi.indent})\n")
 
         return _visit, _depart
 
