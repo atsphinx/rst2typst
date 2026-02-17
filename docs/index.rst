@@ -6,3 +6,9 @@ rst2typst documentation
    :caption: Contents:
 
    spec
+
+.. toctree::
+   :hidden:
+   :caption: Reference:
+
+   api
