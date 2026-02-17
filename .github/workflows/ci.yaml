@@ -13,6 +13,7 @@ on:
 
 env:
   UV_NO_SYNC: 1
+  TASK_X_REMOTE_TASKFILES: 1
   GH_TOKEN: ${{ github.token }}
 
 jobs:
@@ -25,7 +26,7 @@ jobs:
           aqua_version: v2.43.1
       - name: 'Configure dependencies'
         run: |
-          task setup-dev
+          task --yes setup-dev
       - name: 'Run linters'
         run: |
           lefthook run pre-commit --all-files
