@@ -2,6 +2,9 @@
 Math
 ====
 
+Details
+=======
+
 docutils supports LaTeX math syntax, but Typst does not support it natively.
 Then, translator uses the `mitex` package provides a way to include LaTeX math in Typst documents.
 
