@@ -60,4 +60,4 @@ jobs:
         if: ${{ matrix.workspace == 'latest'}}
       - name: 'Run tests'
         run: |
-          uv run pytest e2e
+          uv run pytest tests e2e
