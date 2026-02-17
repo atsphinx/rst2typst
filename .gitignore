@@ -1,6 +1,8 @@
 ### GIGI version 0.2.1
 ### command with: node python
 
+.task
+
 ### Node ###
 # Logs
 logs

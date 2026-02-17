@@ -1,10 +1,22 @@
 version: '3'
 
+includes:
+  docs:
+    taskfile: 'https://github.com/attakei/workspace-configs.git//projects/sphinx-doc/Taskfile.yaml?tag=v0.7.1'
+    vars:
+      RUN_PYTHON: 'uv run'
+      SPHINX_ROOT_DIR: 'docs'
+      SPHINX_SOURCE_DIR: ''
+      SPHINX_OUTPUT_DIR: '_build'
+      SPHINX_DEFAULT_BUILDER: 'dirhtml'
+      SPHINX_APIDOC_PACKAGE_PATH: '../src/rst2typst'
+
 tasks:
   setup-dev:
     desc: 'Setup workspace'
     cmds:
       - 'uv sync --frozen --all-extras'
+      - task: 'docs:apidoc'
       - 'lefthook install'
   docs-build:
     desc: 'Build documentation to PDF file'
