@@ -270,14 +270,14 @@ class TypstTranslator(nodes.NodeVisitor):
         pass
 
     def visit_field_name(self, node: nodes.field_name):
-        if isinstance(node.parent.parent, nodes.docinfo):
+        if isinstance(node.parent.parent, nodes.docinfo):  # type: ignore[possibly-missing-attribute]
             self.body.append("/ ")
             return
         self.body.append(self._hi.indent)
         self.body.append("[")
 
     def depart_field_name(self, node: nodes.field_name):
-        if isinstance(node.parent.parent, nodes.docinfo):
+        if isinstance(node.parent.parent, nodes.docinfo):  # type: ignore[possibly-missing-attribute]
             self.body.append(": ")
             return
         self.body.append("],\n")
