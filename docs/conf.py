@@ -9,6 +9,11 @@ extensions = [
     # Built-in extensions
     "sphinx.ext.autodoc",
     "sphinx.ext.intersphinx",
+    "sphinx.ext.todo",
+    # atsphinx extensions
+    "atsphinx.footnotes",
+    # Third-party extensions
+    "sphinx_design",
 ]
 
 templates_path = ["_templates"]
