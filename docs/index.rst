@@ -39,6 +39,7 @@ You can shorten build cycle to generate PDF your reStructuredText based document
    :maxdepth: 1
    :caption: Contents:
 
+   getting-started
    spec
 
 .. toctree::
