@@ -19,10 +19,12 @@ extensions = [
 templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
-
 # -- Options for HTML output
 html_theme = "shibuya"
 html_static_path = ["_static"]
+html_theme_options = {
+    "announcement": "This is not yet published on PyPI.",
+}
 
 # -- Options for extensions
 # sphinx.ext.intersphinx
