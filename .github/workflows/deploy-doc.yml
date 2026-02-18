@@ -8,7 +8,7 @@ env:
   TASK_X_REMOTE_TASKFILES: 1
 
 jobs:
-  deploy-docs:
+  deploy-doc:
     runs-on: ubuntu-latest
     permissions:
       pages: write
@@ -31,3 +31,6 @@ jobs:
         uses: actions/upload-pages-artifact@v4
         with:
           path: docs/_build/dirhtml
+      - name: 'Deploy to GitHub Pages'
+        id: deployment
+        uses: actions/deploy-pages@v4
