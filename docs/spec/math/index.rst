@@ -17,36 +17,24 @@ Examples
 Simple block
 ------------
 
-From:
+.. tab-set-code::
 
-.. code-block:: rst
+   .. literalinclude:: simple-block.rst.txt
+      :language: rst
 
-   .. math::
-
-      x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}
-
-To:
-
-.. code-block:: typst
-
-   #mitex(`
-     x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}
-   `)
+   .. literalinclude:: simple-block.typ.txt
+      :language: typst
 
 Inline role
 -----------
 
-From:
+.. tab-set-code::
 
-.. code-block:: rst
+   .. literalinclude:: inline-role.rst.txt
+      :language: rst
 
-   The area of a circle is :math:`A_\text{c} = (\pi/4) d^2`.
-
-To:
-
-.. code-block:: typst
-
-   The area of a circle is #mi(`A_\text{c} = (\pi/4) d^2`).
+   .. literalinclude:: inline-role.typ.txt
+      :language: typst
 
 References
 ==========

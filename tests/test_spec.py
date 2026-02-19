@@ -7,8 +7,7 @@ This file run tests using documents as "Spec of visitor/departer".
 from pathlib import Path
 
 import pytest
-from docutils import nodes
-from docutils.core import publish_doctree, publish_parts
+from docutils.core import publish_parts
 
 from rst2typst import writer
 
@@ -19,21 +18,12 @@ def fetch_all_cases():
     """Fetch all test cases from spec documents."""
     ids = []
     cases = []
-    for file in SPEC_DIR.glob("*.rst"):
-        doctree = publish_doctree(file.read_text())
-        for t1_ in doctree.findall(nodes.title):
-            if t1_.astext() != "Examples":
-                continue
-            for section in t1_.parent.findall(nodes.section, include_self=False):
-                title = list(section.findall(nodes.title))[0].astext()
-                case_id = f"{file.stem}__{title.lower().replace(' ', '_')}"
-                ids.append(case_id)
-                cases.append(
-                    [
-                        literal.astext()
-                        for literal in section.findall(nodes.literal_block)
-                    ]
-                )
+    for rst in SPEC_DIR.glob("**/*.rst.txt"):
+        group = rst.relative_to(SPEC_DIR).parent
+        name = rst.name[:-8]
+        typ = rst.parent / f"{name}.typ.txt"
+        cases.append((rst.read_text(), typ.read_text()))
+        ids.append(f"{group.name}__{name}")
     return ids, cases
 
 

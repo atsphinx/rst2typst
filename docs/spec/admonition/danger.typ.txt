@@ -1,0 +1,4 @@
+#admonition-callout(
+  "danger", "Danger",
+  [Beware killer rabbits!],
+)

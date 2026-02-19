@@ -12,4 +12,4 @@ Spec of translator
    :caption: List of translate specs:
    :glob:
 
-   spec/*
+   spec/*/index

@@ -16,41 +16,24 @@ Examples
 Danger admonition
 -----------------
 
-From:
+.. tab-set-code::
 
-.. code-block:: rst
+   .. literalinclude:: danger.rst.txt
+      :language: rst
 
-   .. danger::
-      Beware killer rabbits!
-
-To:
-
-.. code-block:: typst
-
-   #admonition-callout(
-     "danger", "Danger",
-     [Beware killer rabbits!],
-   )
+   .. literalinclude:: danger.typ.txt
+      :language: typst
 
 Generic admonition
 ------------------
 
-From:
+.. tab-set-code::
 
-.. code-block:: rst
+   .. literalinclude:: generic.rst.txt
+      :language: rst
 
-   .. admonition:: And, by the way...
-
-      You can make up your own admonition too.
-
-To:
-
-.. code-block:: typst
-
-   #admonition-callout(
-     "admonition", "And, by the way...",
-     [You can make up your own admonition too.],
-   )
+   .. literalinclude:: generic.typ.txt
+      :language: typst
 
 References
 ==========
