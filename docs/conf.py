@@ -1,3 +1,5 @@
+import os
+
 # -- Project information
 project = "rst2typst"
 copyright = "2026, Kazuya Takei"
@@ -23,17 +25,19 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 html_theme = "shibuya"
 html_static_path = ["_static"]
 html_theme_options = {
-    "announcement": "This is not yet published on PyPI.",
     "github_url": "https://github.com/atsphinx/rst2typst",
     "nav_links": [
         {
-            "title": "It works on atsphinx project",
+            "title": '"atsphinx" project',
             "url": "https://atsphinx.github.io/",
             "external": True,
         },
     ],
     "nav_links_align": "right",
 }
+_announcement = os.environ.get("SHIBUYA_ANNOUNCEMENT", None)
+if _announcement:
+    html_theme_options["announcement"] = _announcement
 
 # -- Options for extensions
 # sphinx.ext.intersphinx
