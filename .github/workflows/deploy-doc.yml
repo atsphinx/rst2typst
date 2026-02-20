@@ -27,6 +27,7 @@ jobs:
           task --yes docs:build
         env:
           GITHUB_PAGES: 1
+          SHIBUYA_ANNOUNCEMENT: ${{ vars.SHIBUYA_ANNOUNCEMENT }}
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4
         with:
