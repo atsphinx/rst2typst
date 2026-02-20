@@ -1,6 +1,9 @@
 name: 'Deployment document'
 
 on:
+  push:
+    branches:
+      - 'dev'
   workflow_call:
   workflow_dispatch:
 
