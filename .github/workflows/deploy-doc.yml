@@ -27,7 +27,7 @@ jobs:
           uv sync --group=docs --frozen
       - name: 'Build document'
         run: |
-          task --yes docs:build
+          task --yes build-docs
         env:
           GITHUB_PAGES: 1
           SHIBUYA_ANNOUNCEMENT: ${{ vars.SHIBUYA_ANNOUNCEMENT }}

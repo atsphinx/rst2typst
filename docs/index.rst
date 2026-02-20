@@ -53,3 +53,12 @@ Are you interested in this?
    :caption: Reference:
 
    api
+
+See demo
+========
+
+This is demo of rst2typst.
+
+.. raw:: html
+
+    <object class="pdf" data="/_static/demo.pdf" width="100%" height="500">
