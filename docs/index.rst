@@ -40,6 +40,7 @@ You can shorten build cycle to generate PDF your reStructuredText based document
    :caption: Contents:
 
    getting-started
+   cli
    spec
 
 .. toctree::
