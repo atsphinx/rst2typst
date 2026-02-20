@@ -1,3 +1,4 @@
+====
 Home
 ====
 
@@ -9,7 +10,8 @@ Home
    }
    </style>
 
-**Hello document writers!!**
+Hello document writers!!
+========================
 
 rst2typst is Python project to provide features that convert reStructuredText to Typst code.
 You can shorten build cycle to generate PDF your reStructuredText based document.
@@ -34,6 +36,9 @@ You can shorten build cycle to generate PDF your reStructuredText based document
 
         .. literalinclude:: _examples/index.typ.txt
            :language: typst
+
+Are you interested in this?
+===========================
 
 .. toctree::
    :maxdepth: 1
