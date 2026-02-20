@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import functools
-import textwrap
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -31,10 +30,20 @@ class Writer(BaseWriter):
                     "validator": validate_comma_separated_int,
                 },
             ),
+            (
+                "Template for render code.",
+                ["--template"],
+                {
+                    "metavar": "<filepath>",
+                },
+            ),
         ),
     )
 
-    settings_defaults = {"page_break_level": []}
+    settings_defaults = {
+        "page_break_level": [],
+        "template": Path(__file__).parent / "template.txt",
+    }
 
     config_section = "typst writer"
 
@@ -43,6 +52,13 @@ class Writer(BaseWriter):
     def __init__(self):
         super().__init__()
         self.translator_class = TypstTranslator
+        self.parts = {
+            "body": "",
+            "imports": "",
+            "includes": "",
+            "prologue": "",
+            "epilogue": "",
+        }
 
     def translate(self):
         visitor: TypstTranslator = self.translator_class(self.document)
@@ -52,14 +68,7 @@ class Writer(BaseWriter):
             [f'#import "{name}": {symbol}' for name, symbol in visitor.imports]
         )
         self.parts["includes"] = "\n".join([i.read_text() for i in visitor.includes])
-        self.output = textwrap.dedent(
-            """
-        {imports}
-        {includes}
-        
-        {body}
-        """.format(**self.parts)
-        )
+        self.output = self.document.settings.template.read_text().format(**self.parts)
 
 
 class HanglingIndent(list[str]):
