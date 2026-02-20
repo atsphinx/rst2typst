@@ -1,7 +1,11 @@
 """Test cases using spec documents.
 
-``spec`` pages in documentation includes example how does it convert from reStructuredText to Typst.
-This file run tests using documents as "Spec of visitor/departer".
+``spec`` pages in documentation include examples how does it convert from reStructuredText to Typst.
+This file run tests using documents as "Spec of translator".
+
+Refs:
+
+* https://rst2typst.attakei.dev/spec/
 """
 
 from pathlib import Path
@@ -32,5 +36,13 @@ ids, all_cases = fetch_all_cases()
 
 @pytest.mark.parametrize("source,expected", all_cases, ids=ids)
 def test_translate(source, expected):
+    """Test result of translation.
+
+    It checks that contents of ``self.body.append`` results match expected output.
+
+    .. note::
+
+       Some nodes append imports syntax, but this case doesn't check it.
+    """
     parts = publish_parts(source, writer=writer.Writer())
     assert parts["body"].strip() == expected.strip()
