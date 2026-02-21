@@ -1,0 +1,3 @@
+The footnote above can be referred to with #link(<footnote-1>)[1] or #footnote()[
+  Text of the first footnote.
+] <footnote-1>.

@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING
 from docutils import nodes
 from docutils.writers import Writer as BaseWriter
 
+from . import transforms
 from .frontend import validate_comma_separated_int
 
 if TYPE_CHECKING:
@@ -59,6 +60,11 @@ class Writer(BaseWriter):
             "prologue": "",
             "epilogue": "",
         }
+
+    def get_transforms(self):
+        return super().get_transforms() + [
+            transforms.RemapFootnotes,
+        ]
 
     def translate(self):
         visitor: TypstTranslator = self.translator_class(self.document)
@@ -495,6 +501,24 @@ class TypstTranslator(nodes.NodeVisitor):
 
     # Explicit Markup Blocks
     # ----------------------
+    def visit_footnote(self, node: nodes.footnote):
+        self._hi.push("  ")
+        self.body.append(f"#footnote()[\n{self._hi.indent}")
+
+    def depart_footnote(self, node: nodes.footnote):
+        self._hi.pop()
+        self.body.append(f"\n{self._hi.indent}]")
+
+    def visit_footnote_reference(self, node: nodes.footnote_reference):
+        if isinstance(node.previous_sibling(), nodes.footnote):
+            self.body.append(" <")
+        else:
+            self.body.append("@")
+
+    def depart_footnote_reference(self, node: nodes.footnote_reference):
+        if isinstance(node.previous_sibling(), nodes.footnote):
+            self.body.append(">")
+
     def visit_comment(self, node: nodes.comment):
         raise nodes.SkipNode
 
@@ -538,9 +562,14 @@ class TypstTranslator(nodes.NodeVisitor):
         self.body.append("`)")
 
     def visit_reference(self, node: nodes.reference):
-        # TODO: Add case for internal links if exists.
-        href = node["refuri"]
-        self.body.append(f'#link("{href}")[')
+        if "refuri" in node:
+            href = node["refuri"]
+            self.body.append(f'#link("{href}")[')
+            return
+        if "refid" in node:
+            self.body.append(f"#link(<{node['refid']}>)[")
+            return
+        self.body.append("[")
 
     def depart_reference(self, node: nodes.reference):
         self.body.append("]")

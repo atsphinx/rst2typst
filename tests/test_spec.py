@@ -11,7 +11,7 @@ Refs:
 from pathlib import Path
 
 import pytest
-from docutils.core import publish_parts
+from docutils.core import publish_parts, publish_string
 
 from rst2typst import writer
 
@@ -23,10 +23,11 @@ def fetch_all_cases():
     ids = []
     cases = []
     for rst in SPEC_DIR.glob("**/*.rst.txt"):
+        pxml = rst.parent / f"{rst.name[:-8]}.pxml"
         group = rst.relative_to(SPEC_DIR).parent
         name = rst.name[:-8]
         typ = rst.parent / f"{name}.typ.txt"
-        cases.append((rst.read_text(), typ.read_text()))
+        cases.append((rst.read_text(), typ.read_text(), pxml))
         ids.append(f"{group.name}__{name}")
     return ids, cases
 
@@ -34,8 +35,8 @@ def fetch_all_cases():
 ids, all_cases = fetch_all_cases()
 
 
-@pytest.mark.parametrize("source,expected", all_cases, ids=ids)
-def test_translate(source, expected):
+@pytest.mark.parametrize("source,expected,pxml", all_cases, ids=ids)
+def test_translate(source: str, expected: str, pxml: Path):
     """Test result of translation.
 
     It checks that contents of ``self.body.append`` results match expected output.
@@ -44,5 +45,6 @@ def test_translate(source, expected):
 
        Some nodes append imports syntax, but this case doesn't check it.
     """
+    pxml.write_bytes(publish_string(source, writer_name="pseudoxml"))
     parts = publish_parts(source, writer=writer.Writer())
     assert parts["body"].strip() == expected.strip()

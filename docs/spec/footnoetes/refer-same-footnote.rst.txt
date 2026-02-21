@@ -1,0 +1,5 @@
+Footnotes may be auto-numbered. [#f1]_
+
+Footnotes may be auto-numbered. [#f1]_
+
+.. [#f1] This is an auto-numbered footnote.
