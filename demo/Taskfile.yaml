@@ -1,0 +1,9 @@
+version: '3'
+
+tasks:
+  build:
+    desc: 'Build documentation to PDF file'
+    cmds:
+      - 'uv run rst2pseudoxml index.rst index.pxml'
+      - 'uv run rst2typst --page-break-level=1 index.rst index.typ'
+      - 'typst c index.typ {{ default "." .PDF_OUTPUT_DIR }}/demo.pdf'

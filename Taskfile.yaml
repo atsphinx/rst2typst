@@ -10,6 +10,11 @@ includes:
       SPHINX_OUTPUT_DIR: '_build'
       SPHINX_DEFAULT_BUILDER: 'dirhtml'
       SPHINX_APIDOC_PACKAGE_PATH: '../src/rst2typst'
+  demo:
+    taskfile: './demo/Taskfile.yaml'
+    dir: './demo'
+    vars:
+      PDF_OUTPUT_DIR: '{{.ROOT_DIR}}/docs/_static'
 
 tasks:
   setup-dev:
@@ -18,17 +23,11 @@ tasks:
       - 'uv sync --frozen --all-extras'
       - task: 'docs:apidoc'
       - 'lefthook install'
-  build-demo:
-    desc: 'Build documentation to PDF file'
-    cmds:
-      - 'uv run rst2pseudoxml demo/index.rst demo/index.pxml'
-      - 'uv run rst2typst --page-break-level=1 demo/index.rst demo/index.typ'
-      - 'typst c demo/index.typ docs/_static/demo.pdf'
   build-docs:
     desc: 'Build full document for deployment'
     cmds:
       - task: 'docs:apidoc'
-      - task: 'build-demo'
+      - task: 'demo:build'
       - task: 'docs:build'
   release-*:
     desc: 'Run release process'
