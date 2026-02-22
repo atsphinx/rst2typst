@@ -43,6 +43,17 @@ Auto numbered
    .. literalinclude:: auto-numbered.typ.txt
       :language: typst
 
+Auto numbered (multiple footnotes)
+----------------------------------
+
+.. tab-set-code::
+
+   .. literalinclude:: auto-numbered-multiple.rst.txt
+      :language: rst
+
+   .. literalinclude:: auto-numbered-multiple.typ.txt
+      :language: typst
+
 References
 ==========
 

@@ -1,0 +1,5 @@
+Footnotes may be auto-numbered. #footnote()[
+  This is a first auto-numbered footnote.
+] <footnote-1> #footnote()[
+  This is a second auto-numbered footnote.
+] <footnote-2>

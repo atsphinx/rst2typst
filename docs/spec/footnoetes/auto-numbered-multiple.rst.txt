@@ -1,0 +1,4 @@
+Footnotes may be auto-numbered. [#]_ [#]_
+
+.. [#] This is a first auto-numbered footnote.
+.. [#] This is a second auto-numbered footnote.

@@ -9,7 +9,7 @@ class RemapFootnotes(Transform):
 
     def apply(self, **kwargs):
         footnotes = {}
-        for f in self.document.findall(nodes.footnote):
+        for f in list(self.document.findall(nodes.footnote)):
             f.parent.remove(f)
             for id in f.attributes.get("ids", []):
                 label_idx = f.first_child_matching_class(nodes.label)
