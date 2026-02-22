@@ -2,7 +2,7 @@
 Demo of rst2typst
 =================
 
-:Date: 2026-02-21 Asia/Tokyo
+:Date: 2026-02-23 Asia/Tokyo
 :Author: Kazuya Takei
 
 Preface
@@ -133,10 +133,35 @@ install Typst from PyPI or other package manager.
 Write a document
 ----------------
 
-+------------------+------------------+
-| reStructuredText | Typst            |
-+==================+==================+
-| ``*Emphasis*``   | *Emphasis*       |
-+------------------+------------------+
-| ``**Strong**``   | **Strong**       |
-+------------------+------------------+
+You need to write a document in reStructuredText format.
+rst2typst supports many syntax of reStructuredText.
+Please write your document without worry.
+
+There are examples of reStructuredText syntax supported by rst2typst and what they are converted.
+To see all rules, check document [#]_ and test cases. [#]_
+
+.. [#] https://rst2typst.attakei.dev/spec/
+.. [#] https://github.com/attakei/rst2typst/tree/main/e2e
+
+.. important::
+
+   It has full-compatibility not all syntax, some attributes are ignored by rst2typst.
+
++---------------+--------------------------------+------------------------------+
+| Syntax        | reStructuredText source        | Converted Typst source       |
++===============+================================+==============================+
+| Empasis       | ``*Use for term*``             | ``_Use for term_``           |
++---------------+--------------------------------+------------------------------+
+| Strong        | ``**Use for power sentence**`` | ``*Use for power sentence*`` |
++---------------+--------------------------------+------------------------------+
+| Numbered list | .. code:: rst                  | .. code:: typst              |
+|               |                                |                              |
+|               |    #. Item A                   |    + Iem A                   |
+|               |  #. Item B                     |  + Item B                    |
+|               |  #. Item C                     |  + Item C                    |
++---------------+--------------------------------+------------------------------+
+| Field list    | .. code:: rst                  | .. code:: typst              |
+|               |                                |                              |
+|               |    :User: Takei                |    / User: Takei             |
+|               |  :Account: attakei             |  / Account: attakei          |
++---------------+--------------------------------+------------------------------+
