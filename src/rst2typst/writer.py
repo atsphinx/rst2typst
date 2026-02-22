@@ -74,7 +74,9 @@ class Writer(BaseWriter):
             [f'#import "{name}": {symbol}' for name, symbol in visitor.imports]
         )
         self.parts["includes"] = "\n".join([i.read_text() for i in visitor.includes])
-        self.output = self.document.settings.template.read_text().format(**self.parts)
+        self.output = (
+            Path(self.document.settings.template).read_text().format(**self.parts)
+        )
 
 
 class HanglingIndent(list[str]):
