@@ -1,0 +1,5 @@
+#import "@preview/mmdr:0.1.0": mermaid
+
+{imports}
+{includes}
+{body}

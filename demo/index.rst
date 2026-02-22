@@ -45,7 +45,9 @@ Typst
 -----
 
 *Typst* is a modern, expressive, and easy-to-learn programming language for creating beautiful documents.
-It is designed to be a complete replacement for LaTeX, but with a simpler syntax and more powerful features.
+It is designed to be a complete replacement for LaTeX, but with a simpler syntax and more powerful features. [#]_
+
+.. [#] https://typst.app/docs/
 
 Typst compiler is written in Rust. Then it is lightweight file size and can build documents rapidly.
 
@@ -72,7 +74,46 @@ It maybe support required syntax to write standard document
 Mechanism
 ---------
 
-(TBD)
+docutils runs for convert files with three steps:
+
+1. Parse converts from reStructuredText document into a "DocTree" that is the AST presents document structure.
+2. Transform metamorphosis DocTree by each transform rules.
+3. Write generates from DocTree to Typst source text and save into file.
+
+.. raw:: typst
+
+   #figure(
+     mermaid("
+       graph LR
+         A(Source)
+         A --> B([Parser])
+         B --> C([Transforms])
+         C --> D([Writer])
+         D --> E(Output)
+     "),
+     caption: [docutils's steps],
+   )
+
+rst2typst extends "Transform" and "Write" steps of docutils.
+
+* Extend "Transform" step by adding new transform rules.
+* Use "Write" step to generate Typst source text.
+
+.. raw:: typst
+
+   #figure(
+     mermaid("
+       graph LR
+         A(Source)
+         A --> B([Parser])
+         B --> C([Transforms])
+         C --> D([Writer])
+         D --> E(Output)
+         style C fill:#fa9
+         style D fill:#f96
+     "),
+     caption: [docutils's steps (colored steps are extended by rst2typst)],
+   )
 
 Usage
 =====
