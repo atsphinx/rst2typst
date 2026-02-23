@@ -9,7 +9,7 @@ dependencies = [
 ]
 
 [project.scripts]
-rst2typst = "rst2typst.cli:main"
+rst2typst = "rst2typst.cli.rst2typst:main"
 
 [dependency-groups]
 dev = [
