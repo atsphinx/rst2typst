@@ -127,8 +127,11 @@ rst2typst can be installed using pip:
 
    pip install rst2typst
 
-If you want to build PDF in same workspace,
-install Typst from PyPI or other package manager.
+If you want to build PDF in same workspace, specify "pdf" extras with installation.
+
+.. code:: bash
+
+   pip install 'rst2typst[pdf]'
 
 Write a document
 ----------------

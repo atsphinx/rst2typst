@@ -2,7 +2,7 @@
 rst2typst
 =========
 
-Converter from DocTree of docutils to Typst source.
+Converter from DocTree of docutils to Typst source and PDF.
 
 Overview
 ========
@@ -37,7 +37,7 @@ You write reStructuredText source to generate for PDF using Typst.
    We like reStructuredText! It is an one of great docutils.
 
    * This has custom writer of docutils.
-   * This has CLI endpoint named ``rst2typst``.
+   * This has CLI endpoint named ``rst2typst`` and ``rst2typstpdf``.
 
    Usage
    =====
@@ -61,7 +61,7 @@ Generated `document.typ` has this content (actually this is not formated).
    We like reStructuredText! It is an one of great docutils.
 
    - This has custom writer of docutils.
-   - This has CLI endpoint named `rst2typst`.
+   - This has CLI endpoint named `rst2typst` and `rst2typstpdf`.
 
    = Usage
 

@@ -5,5 +5,9 @@ tasks:
     desc: 'Build documentation to PDF file'
     cmds:
       - 'uv run rst2pseudoxml index.rst index.pxml'
-      - 'uv run rst2typst --page-break-level=1 --template=./template.txt index.rst index.typ'
-      - 'typst c index.typ {{ default "." .PDF_OUTPUT_DIR }}/demo.pdf'
+      - >
+        uv run rst2typstpdf
+        --page-break-level=1
+        --template=./template.txt
+        index.rst
+        {{ default "." .PDF_OUTPUT_DIR }}/demo.pdf

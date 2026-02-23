@@ -85,14 +85,15 @@ append positional argument.
 
    $ rst2typst document.rst document.typ
 
-Generate PDF (optional)
-=======================
+Generate PDF
+============
 
-Generated Typst code is valid Typst code.
-You can generate PDF by ``typst`` command.
+You can run ``rst2typstpdf`` to generate PDF from reStructuredText directly.
 
-.. tip:: Please install typst CLI by your hands.
+.. tip:: Please install this with ``pdf`` extra option.
 
 .. code-block:: console
 
-   $ typst document.typ
+   $ rst2typstpdf document.rst document.pdf
+
+To know more information, please see :doc:`./cli`.

@@ -1,21 +1,32 @@
-=================
-Command line tool
-=================
+==================
+Command line tools
+==================
 
-``rst2typst`` is a command-line entrypoint of rst2typst.
+This project provides two entrypoints of command line tools.
+
+* :ref:`rst2typst <cli-rst2typst>`
+* :ref:`rst2typstpdf <cli-rst2typstpdf>`
+
+.. _cli-rst2typst:
+
+``rst2typst`` command
+=====================
+
+This is entrypoint to generate Typst code from reStructuredText.
 
 Usage
-=====
+-----
 
-This generates Typst code from reStructuredText.
+.. code::
 
-.. important::
+   rst2typst [options] [<source> [<destination>]]
 
-   This does not have feature to generate PDF.
-   If you want to generate PDF, you should install Typst and use ``typst`` command.
+``source`` is path of reStructuredText file.
+
+``destination`` is output path of Typst file. If ``destination`` is not specified, it outputs into STDOUT.
 
 Options
-=======
+-------
 
 --template
   Template for render code.
@@ -35,6 +46,33 @@ Options
 
   Many PDF files as e-book usually have page breaks at high level sections.
   This values explicit which section level should break page.
+
+.. _cli-rst2typstpdf:
+
+``rst2typstpdf`` command
+========================
+
+Entrypoint to generate PDF bypassing Typst code.
+
+.. important::
+
+   You need to install this with "pdf" extra to run this command.
+
+Usage
+-----
+
+.. code::
+
+   rst2typstpdf [options] [<source> [<destination>]]
+
+``source`` is path of reStructuredText file.
+
+``destination`` is output path of Typst file. If ``destination`` is not specified, it outputs into STDOUT.
+
+Options
+-------
+
+These are same from options for :ref:`cli-rst2typst` command.
 
 Examples
 ========
