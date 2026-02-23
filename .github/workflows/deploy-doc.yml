@@ -3,7 +3,7 @@ name: 'Deployment document'
 on:
   push:
     branches:
-      - 'dev'
+      - 'main'
   workflow_call:
   workflow_dispatch:
 
