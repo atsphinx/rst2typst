@@ -106,8 +106,6 @@ Use custom template
 Generate PDF
 ------------
 
-.. note:: Require Typst executable.
-
 .. code:: console
 
-   $ rst2typst input.rst | typst compile - output.pdf
+   $ rst2typstpdf input.rst output.pdf
