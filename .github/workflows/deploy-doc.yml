@@ -24,7 +24,7 @@ jobs:
       - uses: 'atsphinx/.github/actions/setup-aqua@main'
       - name: Set up workspace
         run: |
-          uv sync --group=docs --frozen
+          uv sync --extra=pdf --group=docs --frozen
       - name: 'Build document'
         run: |
           task --yes build-docs
