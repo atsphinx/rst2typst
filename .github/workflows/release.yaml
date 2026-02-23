@@ -8,10 +8,9 @@ on:
 env:
   UV_NO_SYNC: 1
   TASK_X_REMOTE_TASKFILES: 1
-  GH_TOKEN: ${{ github.token }}
 
 jobs:
-  build:
+  build-package:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -21,18 +20,18 @@ jobs:
       - name: 'Build package'
         run: |
           uv build
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: packages-${{ github.ref_name }}
           path: dist/
   gh-release:
-    needs: [build]
+    needs: [build-package]
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v6
         with:
           name: packages-${{ github.ref_name }}
           path: dist/
@@ -45,7 +44,7 @@ jobs:
           tag: ${{ github.ref }}
           prerelease: false
   publish-pypi:
-    needs: [build]
+    needs: [build-package]
     runs-on: ubuntu-latest
     if: success() && ${{ needs.prepare.outputs.is-release }}
     environment:
@@ -54,7 +53,7 @@ jobs:
     permissions:
       id-token: write
     steps:
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v6
         with:
           name: packages-${{ github.ref_name }}
           path: dist/
