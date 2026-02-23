@@ -16,6 +16,7 @@ extensions = [
     "atsphinx.footnotes",
     # Third-party extensions
     "sphinx_design",
+    "sphinxext.opengraph",
 ]
 
 templates_path = ["_templates"]
@@ -45,3 +46,5 @@ intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
     "sphinx": ("https://sphinx-doc.org/en/master", None),
 }
+# sphinxext.opengraph
+ogp_site_url = "https://rst2typst.attakei.dev/"

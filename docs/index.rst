@@ -1,3 +1,10 @@
+:og:title: rst2typst
+
+.. meta::
+
+   :description: rst2typst is converter from reStructuredText to Typst source using docutils.
+   :keywords: rst2typst, reStructuredText, docutils, Typst
+
 ====
 Home
 ====
