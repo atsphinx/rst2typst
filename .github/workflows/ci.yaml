@@ -62,3 +62,14 @@ jobs:
       - name: 'Run tests'
         run: |
           uv run pytest tests e2e
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: aquaproj/aqua-installer@ea518c135a02fc11ff8024364510c181a5c6b342 # v4.0.3
+        with:
+          aqua_version: v2.43.1
+          aqua_opts: '' # Install typst in this phase.
+      - name: 'Try to work build'
+        run: |
+          uv build
