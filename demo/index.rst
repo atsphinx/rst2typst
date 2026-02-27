@@ -5,6 +5,12 @@ Demo of rst2typst
 :Date: 2026-02-23 Asia/Tokyo
 :Author: Kazuya Takei
 
+.. raw:: typst
+
+   #pagebreak()
+
+.. contents::
+
 Preface
 =======
 

@@ -1,0 +1,7 @@
+#title([Title])
+
+#outline(
+  title: [Table of Contents],
+)
+
+= First

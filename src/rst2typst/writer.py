@@ -672,6 +672,20 @@ class TypstTranslator(nodes.NodeVisitor):
     def depart_caption(self, node: nodes.caption):
         self.body.append("],\n")
 
+    # Body Elements
+    # =============
+    def visit_topic(self, node: nodes.topic):
+        if "contents" in node["classes"]:
+            self.body.append(f"{self._hi.indent}#outline(\n")
+            self._hi.push("  ")
+            titles = list(node.findall(nodes.title))
+            if titles:
+                title = titles[0]
+                self.body.append(f"{self._hi.indent}title: [{title.astext()}],\n")
+            self._hi.pop()
+            self.body.append(f"{self._hi.indent})\n\n")
+            raise nodes.SkipNode
+
     # Miscellaneous
     # =============
     def visit_raw(self, node: nodes.raw):
