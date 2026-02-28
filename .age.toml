@@ -1,4 +1,4 @@
-current_version = "0.0.0"
+current_version = "0.1.0"
 
 [[files]]
 path = "pyproject.toml"
@@ -15,9 +15,6 @@ Recent changelogs
 =================
 """
 replace = """
-Recent changelogs
-=================
-
 v{{new_version}}
 {{#sameLengthChars}}=@v{{new_version}}{{/sameLengthChars}}
 
