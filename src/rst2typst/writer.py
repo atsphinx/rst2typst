@@ -313,10 +313,14 @@ class TypstTranslator(nodes.NodeVisitor):
     # Bibliographic Fields
     # --------------------
     def visit_docinfo(self, node: nodes.docinfo):
-        self._hi.push("/ ")
+        module_path = Path(__file__).parent / "docinfo.typ"
+        self.includes.add(module_path)
+        self.body.append(f"{self._hi.indent}#docinfo-callout()[\n")
+        self._hi.push("  / ")
 
     def depart_docinfo(self, node: nodes.docinfo):
         self._hi.pop()
+        self.body.append(f"{self._hi.indent}]\n")
 
     def _visit_bibliographic(self, node: nodes.Bibliographic):
         title = node.__class__.__name__.title()
