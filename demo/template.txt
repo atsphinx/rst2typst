@@ -2,4 +2,14 @@
 
 {imports}
 {includes}
+
+#let docinfo-callout(content) = {{
+  [
+    #v(1fr)
+    #align(right)[#box(width: 50%)[#align(left)[
+      #content
+    ]]]
+  ]
+}}
+
 {body}
