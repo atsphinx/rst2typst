@@ -54,6 +54,8 @@ Are you interested in this?
    getting-started
    cli
    spec
+   roadmap
+   contributing
 
 .. toctree::
    :hidden:
