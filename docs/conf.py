@@ -1,11 +1,11 @@
 import os
-from importlib.metadata import version
+from importlib import metadata
 
 # -- Project information
 project = "rst2typst"
 copyright = "2026, Kazuya Takei"
 author = "Kazuya Takei"
-release = version("rst2typst")
+release = metadata.version("rst2typst")
 
 # -- General configuration
 extensions = [
