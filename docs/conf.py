@@ -38,7 +38,7 @@ html_theme_options = {
     "nav_links_align": "right",
 }
 _announcement = os.environ.get("SHIBUYA_ANNOUNCEMENT", None)
-if _announcement:
+if _announcement and _announcement != "none":
     html_theme_options["announcement"] = _announcement
 
 # -- Options for extensions
