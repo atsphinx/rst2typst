@@ -1,13 +1,20 @@
 version: '3'
 
+vars:
+  CLI_OPTIONS: >-
+    --page-break-level=1
+    --template=./template.txt
+
 tasks:
   build:
     desc: 'Build documentation to PDF file'
     cmds:
       - 'uv run rst2pseudoxml index.rst index.pxml'
       - >
+        uv run rst2typst
+        {{.CLI_OPTIONS}}
+        index.rst index.typ
+      - >
         uv run rst2typstpdf
-        --page-break-level=1
-        --template=./template.txt
-        index.rst
-        {{ default "." .PDF_OUTPUT_DIR }}/demo.pdf
+        {{.CLI_OPTIONS}}
+        index.rst {{ default "." .PDF_OUTPUT_DIR }}/demo.pdf
