@@ -1,11 +1,12 @@
-========
-Contents
-========
+=======
+Docinfo
+=======
 
 Details
 =======
 
-(TBD)
+``docinfo`` and children are same "Field list" syntax.
+They are rendered as term models by ``#docinfo-callout`` function.
 
 Examples
 ========
