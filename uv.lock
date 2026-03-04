@@ -440,7 +440,7 @@ name = "rst2typst"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
-    { name = "atsphinx-footnotes" },
+    { name = "docutils" },
 ]
 
 [package.optional-dependencies]
@@ -450,6 +450,7 @@ pdf = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "atsphinx-footnotes" },
     { name = "doc8" },
     { name = "pytest" },
     { name = "ruff" },
@@ -465,6 +466,7 @@ dev = [
     { name = "ty" },
 ]
 docs = [
+    { name = "atsphinx-footnotes" },
     { name = "shibuya" },
     { name = "sphinx", version = "8.1.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "sphinx", version = "9.0.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.11.*'" },
@@ -479,13 +481,14 @@ test = [
 
 [package.metadata]
 requires-dist = [
-    { name = "atsphinx-footnotes", specifier = ">=0.3.2" },
+    { name = "docutils", specifier = ">=0.21.2" },
     { name = "typst", marker = "extra == 'pdf'", specifier = ">=0.14.8" },
 ]
 provides-extras = ["pdf"]
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "atsphinx-footnotes", specifier = ">=0.3.2" },
     { name = "doc8", specifier = ">=2.0.0" },
     { name = "pytest", specifier = ">=9.0.2" },
     { name = "ruff", specifier = ">=0.14.14" },
@@ -497,6 +500,7 @@ dev = [
     { name = "ty", specifier = ">=0.0.14" },
 ]
 docs = [
+    { name = "atsphinx-footnotes", specifier = ">=0.3.2" },
     { name = "shibuya", specifier = ">=2026.1.9" },
     { name = "sphinx", specifier = ">=8.1.3" },
     { name = "sphinx-design", specifier = ">=0.6.1" },

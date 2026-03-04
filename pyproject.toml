@@ -26,7 +26,7 @@ classifiers = [
     "Topic :: Utilities",
 ]
 dependencies = [
-    "atsphinx-footnotes>=0.3.2",
+    "docutils>=0.21.2",
 ]
 
 [project.scripts]
@@ -55,6 +55,7 @@ dev = [
     { include-group = "test" },
 ]
 docs = [
+    "atsphinx-footnotes>=0.3.2",
     "shibuya>=2026.1.9",
     "sphinx>=8.1.3",
     "sphinx-design>=0.6.1",
