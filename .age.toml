@@ -31,6 +31,9 @@ Fixes
 
 Others
 ------
+
+v{{current_version}}
+{{#sameLengthChars}}=@v{{current_version}}{{/sameLengthChars}}
 """
 
 [[files]]
