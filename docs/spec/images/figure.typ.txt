@@ -1,0 +1,6 @@
+#figure([
+  #image(
+    "./figure-sample.png",
+  )],
+  caption: [Title],
+)

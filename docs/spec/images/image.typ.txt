@@ -1,0 +1,5 @@
+#image(
+  "./figure-sample.png",
+  alt: "Sample image",
+  width: 50%,
+)

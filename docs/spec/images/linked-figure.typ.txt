@@ -1,0 +1,7 @@
+#figure([
+  #link("https://example.com")[
+    #image(
+      "./figure-sample.png",
+    )]],
+  caption: [Next Title],
+)

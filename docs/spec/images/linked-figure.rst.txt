@@ -1,0 +1,4 @@
+.. figure:: ./figure-sample.png
+   :target: https://example.com
+
+   Next Title
