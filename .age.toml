@@ -11,8 +11,8 @@ replace = "version = \"{{new_version}}\""
 path = "CHANGES.rst"
 
 search = """
-Recent changelogs
-=================
+v{{current_version}}
+{{#sameLengthChars}}=@v{{current_version}}{{/sameLengthChars}}
 """
 replace = """
 v{{new_version}}
