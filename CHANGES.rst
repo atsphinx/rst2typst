@@ -1,3 +1,21 @@
+v0.1.1
+======
+
+:Date: 2026-03-05 (Asia/Tokyo)
+
+Fixes
+-----
+
+* Fix dependencies correctly
+
+  * Add docutils that is core library.
+  * Remove atsphinx-footnotes that is only for document.
+
+Others
+------
+
+* Update documents.
+
 v0.1.0
 ======
 
