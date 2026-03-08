@@ -5,7 +5,7 @@ Docinfo
 Details
 =======
 
-``docinfo`` and children are same "Field list" syntax.
+``docinfo`` and children are same ":doc:`../field-lists/index`" syntax.
 They are rendered as term models by ``#docinfo-callout`` function.
 
 Examples
