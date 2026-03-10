@@ -35,6 +35,10 @@ jobs:
         run: |
           uv run rst2latex demo/index.rst demo-by-rst2latex.tex
           pdflatex demo-by-rst2latex.tex demo-by-rst2latex.pdf
+      - uses: actions/upload-artifact@v5
+        with:
+          name: rst2latex
+          path: demo-by-rst2latex.pdf
   rst2typst:
     runs-on: ubuntu-latest
     steps:
@@ -52,3 +56,7 @@ jobs:
           --page-break-level=1
           --template=demo/template.txt
           demo/index.rst demo-by-rst2typst.pdf
+      - uses: actions/upload-artifact@v5
+        with:
+          name: rst2typst
+          path: demo-by-rst2typst.pdf
