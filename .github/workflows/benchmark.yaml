@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - 'main'
-      - 'benchmark'  # TODO: Remove it after implement all jobs for benchmark
   workflow_dispatch:
 
 env:
