@@ -25,12 +25,15 @@ jobs:
           task --yes setup-dev
       - name: Install LaTeX dependencies
         run: |
+          TEX_START=$(date +%s%3N)
           sudo apt-get update
           sudo apt-get install -y \
             texlive-latex-recommended \
             texlive-fonts-recommended \
             texlive-latex-extra \
             latexmk
+          TEX_END=$(date +%s%3N)
+          echo "elapsed_ms=$((TEX_END - TEX_START))" > timing-tex-install.txt
       - name: 'Build demo PDF by rst2latex and pdflatex'
         run: |
           START=$(date +%s%3N)
@@ -44,6 +47,7 @@ jobs:
           path: |
             demo-by-rst2latex.pdf
             timing-rst2latex.txt
+            timing-tex-install.txt
   rst2typst:
     runs-on: ubuntu-latest
     steps:
@@ -90,24 +94,44 @@ jobs:
         run: |
           LATEX_MS=$(grep elapsed_ms artifacts/timing-rst2latex.txt | cut -d= -f2)
           TYPST_MS=$(grep elapsed_ms artifacts/timing-rst2typst.txt | cut -d= -f2)
+          TEX_INSTALL_MS=$(grep elapsed_ms artifacts/timing-tex-install.txt | cut -d= -f2)
+          LATEX_TOTAL_MS=$((LATEX_MS + TEX_INSTALL_MS))
+
           LATEX_S=$(echo "scale=3; $LATEX_MS / 1000" | bc)
           TYPST_S=$(echo "scale=3; $TYPST_MS / 1000" | bc)
+          TEX_INSTALL_S=$(echo "scale=3; $TEX_INSTALL_MS / 1000" | bc)
+          LATEX_TOTAL_S=$(echo "scale=3; $LATEX_TOTAL_MS / 1000" | bc)
 
-          if [ "$LATEX_MS" -lt "$TYPST_MS" ]; then
-            FASTER="rst2latex"
-            DIFF_MS=$((TYPST_MS - LATEX_MS))
-          elif [ "$TYPST_MS" -lt "$LATEX_MS" ]; then
-            FASTER="rst2typst"
-            DIFF_MS=$((LATEX_MS - TYPST_MS))
-          else
-            FASTER="(tie)"
-            DIFF_MS=0
-          fi
-          DIFF_S=$(echo "scale=3; $DIFF_MS / 1000" | bc)
+          faster_label() {
+            if [ "$1" -lt "$2" ]; then echo "rst2latex"
+            elif [ "$2" -lt "$1" ]; then echo "rst2typst"
+            else echo "(tie)"; fi
+          }
+          diff_ms() {
+            if [ "$1" -lt "$2" ]; then echo $((2 - 1))
+            else echo $((1 - 2)); fi
+          }
+
+          FASTER_BUILD=$(faster_label "$LATEX_MS" "$TYPST_MS")
+          DIFF_BUILD_MS=$(( LATEX_MS > TYPST_MS ? LATEX_MS - TYPST_MS : TYPST_MS - LATEX_MS ))
+          DIFF_BUILD_S=$(echo "scale=3; $DIFF_BUILD_MS / 1000" | bc)
+          SLOWER_BUILD_MS=$(( LATEX_MS > TYPST_MS ? LATEX_MS : TYPST_MS ))
+          FASTER_BUILD_MS=$(( LATEX_MS < TYPST_MS ? LATEX_MS : TYPST_MS ))
+          SPEEDUP_BUILD=$(echo "scale=2; $SLOWER_BUILD_MS / $FASTER_BUILD_MS" | bc)
+
+          FASTER_TOTAL=$(faster_label "$LATEX_TOTAL_MS" "$TYPST_MS")
+          DIFF_TOTAL_MS=$(( LATEX_TOTAL_MS > TYPST_MS ? LATEX_TOTAL_MS - TYPST_MS : TYPST_MS - LATEX_TOTAL_MS ))
+          DIFF_TOTAL_S=$(echo "scale=3; $DIFF_TOTAL_MS / 1000" | bc)
+          SLOWER_TOTAL_MS=$(( LATEX_TOTAL_MS > TYPST_MS ? LATEX_TOTAL_MS : TYPST_MS ))
+          FASTER_TOTAL_MS=$(( LATEX_TOTAL_MS < TYPST_MS ? LATEX_TOTAL_MS : TYPST_MS ))
+          SPEEDUP_TOTAL=$(echo "scale=2; $SLOWER_TOTAL_MS / $FASTER_TOTAL_MS" | bc)
 
           cat <<EOF > report.rst
           Benchmark Report: rst2latex vs rst2typst
           =========================================
+
+          Build time only
+          ---------------
 
           .. list-table::
              :header-rows: 1
@@ -122,10 +146,56 @@ jobs:
                - ${TYPST_MS}
                - ${TYPST_S}
 
-          **Faster:** ${FASTER} (by ${DIFF_MS} ms / ${DIFF_S} s)
+          **Faster:** ${FASTER_BUILD} (by ${DIFF_BUILD_MS} ms / ${DIFF_BUILD_S} s, ${SPEEDUP_BUILD}x faster)
+          --------------------------
+
+          TeX install time: ${TEX_INSTALL_MS} ms (${TEX_INSTALL_S} s)
+
+          .. list-table::
+             :header-rows: 1
+
+             * - Tool
+               - Build (ms)
+               - Install (ms)
+               - Total (ms)
+               - Total (s)
+             * - rst2latex
+               - ${LATEX_MS}
+               - ${TEX_INSTALL_MS}
+               - ${LATEX_TOTAL_MS}
+               - ${LATEX_TOTAL_S}
+             * - rst2typst
+               - ${TYPST_MS}
+               - 0
+               - ${TYPST_MS}
+               - ${TYPST_S}
+
+          **Faster:** ${FASTER_TOTAL} (by ${DIFF_TOTAL_MS} ms / ${DIFF_TOTAL_S} s, ${SPEEDUP_TOTAL}x faster)
           EOF
 
-          cat report.rst >> "$GITHUB_STEP_SUMMARY"
+          cat <<EOF >> "$GITHUB_STEP_SUMMARY"
+          ## Benchmark Report: rst2latex vs rst2typst
+
+          ### Build time only
+
+          | Tool | Elapsed time (ms) | Elapsed time (s) |
+          |------|------------------:|-----------------:|
+          | rst2latex | ${LATEX_MS} | ${LATEX_S} |
+          | rst2typst | ${TYPST_MS} | ${TYPST_S} |
+
+          **Faster:** ${FASTER_BUILD} (by ${DIFF_BUILD_MS} ms / ${DIFF_BUILD_S} s, **${SPEEDUP_BUILD}x faster**)
+
+          ### Including TeX installation
+
+          > TeX install time: ${TEX_INSTALL_MS} ms (${TEX_INSTALL_S} s)
+
+          | Tool | Build (ms) | Install (ms) | Total (ms) | Total (s) |
+          |------|-----------:|-------------:|-----------:|----------:|
+          | rst2latex | ${LATEX_MS} | ${TEX_INSTALL_MS} | ${LATEX_TOTAL_MS} | ${LATEX_TOTAL_S} |
+          | rst2typst | ${TYPST_MS} | 0 | ${TYPST_MS} | ${TYPST_S} |
+
+          **Faster:** ${FASTER_TOTAL} (by ${DIFF_TOTAL_MS} ms / ${DIFF_TOTAL_S} s, **${SPEEDUP_TOTAL}x faster**)
+          EOF
       - uses: actions/upload-artifact@v5
         with:
           name: benchmark
