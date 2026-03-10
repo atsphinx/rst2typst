@@ -33,12 +33,17 @@ jobs:
             latexmk
       - name: 'Build demo PDF by rst2latex and pdflatex'
         run: |
+          START=$(date +%s%3N)
           uv run rst2latex demo/index.rst demo-by-rst2latex.tex
           pdflatex demo-by-rst2latex.tex demo-by-rst2latex.pdf
+          END=$(date +%s%3N)
+          echo "elapsed_ms=$((END - START))" > timing-rst2latex.txt
       - uses: actions/upload-artifact@v5
         with:
           name: rst2latex
-          path: demo-by-rst2latex.pdf
+          path: |
+            demo-by-rst2latex.pdf
+            timing-rst2latex.txt
   rst2typst:
     runs-on: ubuntu-latest
     steps:
@@ -51,12 +56,80 @@ jobs:
         run: |
           task --yes setup-dev
       - name: 'Build demo PDF by rst2typst'
-        run: >
-          uv run rst2typstpdf
-          --page-break-level=1
-          --template=demo/template.txt
-          demo/index.rst demo-by-rst2typst.pdf
+        run: |
+          START=$(date +%s%3N)
+          uv run rst2typstpdf \
+            --page-break-level=1 \
+            --template=demo/template.txt \
+            demo/index.rst demo-by-rst2typst.pdf
+          END=$(date +%s%3N)
+          echo "elapsed_ms=$((END - START))" > timing-rst2typst.txt
       - uses: actions/upload-artifact@v5
         with:
           name: rst2typst
-          path: demo-by-rst2typst.pdf
+          path: |
+            demo-by-rst2typst.pdf
+            timing-rst2typst.txt
+  report:
+    runs-on: ubuntu-latest
+    needs:
+      - rst2latex
+      - rst2typst
+    steps:
+      - name: 'Download rst2latex artifacts'
+        uses: actions/download-artifact@v5
+        with:
+          name: rst2latex
+          path: artifacts/
+      - name: 'Download rst2typst artifacts'
+        uses: actions/download-artifact@v5
+        with:
+          name: rst2typst
+          path: artifacts/
+      - name: 'Generate timing comparison report'
+        run: |
+          LATEX_MS=$(grep elapsed_ms artifacts/timing-rst2latex.txt | cut -d= -f2)
+          TYPST_MS=$(grep elapsed_ms artifacts/timing-rst2typst.txt | cut -d= -f2)
+          LATEX_S=$(echo "scale=3; $LATEX_MS / 1000" | bc)
+          TYPST_S=$(echo "scale=3; $TYPST_MS / 1000" | bc)
+
+          if [ "$LATEX_MS" -lt "$TYPST_MS" ]; then
+            FASTER="rst2latex"
+            DIFF_MS=$((TYPST_MS - LATEX_MS))
+          elif [ "$TYPST_MS" -lt "$LATEX_MS" ]; then
+            FASTER="rst2typst"
+            DIFF_MS=$((LATEX_MS - TYPST_MS))
+          else
+            FASTER="(tie)"
+            DIFF_MS=0
+          fi
+          DIFF_S=$(echo "scale=3; $DIFF_MS / 1000" | bc)
+
+          cat <<EOF > report.rst
+          Benchmark Report: rst2latex vs rst2typst
+          =========================================
+
+          .. list-table::
+             :header-rows: 1
+
+             * - Tool
+               - Elapsed time (ms)
+               - Elapsed time (s)
+             * - rst2latex
+               - ${LATEX_MS}
+               - ${LATEX_S}
+             * - rst2typst
+               - ${TYPST_MS}
+               - ${TYPST_S}
+
+          **Faster:** ${FASTER} (by ${DIFF_MS} ms / ${DIFF_S} s)
+          EOF
+
+          cat report.rst >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v5
+        with:
+          name: benchmark
+          path: |
+            artifacts/demo-by-rst2latex.pdf
+            artifacts/demo-by-rst2typst.pdf
+            report.rst
