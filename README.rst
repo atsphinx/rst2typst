@@ -16,6 +16,14 @@ I develop this for two purposes:
 
 I will use this and atsphinx-typst to generate documentation PDF files of my Python projects.
 
+Benchmark
+=========
+
+**rst2typstpdf is about 53.5x faster** than rst2latex+pdflatex
+when including the installation of TeX Live (1.7 s vs 92.3 s).
+
+For full details, see `Benchmark in the documentation <https://rst2typst.attakei.dev/#benchmark>`_.
+
 Usage
 =====
 

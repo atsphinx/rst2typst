@@ -23,8 +23,6 @@ Hello document writers!!
 rst2typst is Python project to provide features that convert reStructuredText to Typst code.
 You can shorten build cycle to generate PDF your reStructuredText based document.
 
-.. todo:: Write benchmark
-
 .. grid:: 2
     :outline:
 
@@ -43,6 +41,40 @@ You can shorten build cycle to generate PDF your reStructuredText based document
 
         .. literalinclude:: _examples/index.typ.txt
            :language: typst
+
+Benchmark
+=========
+
+The following table shows the result of benchmark on GitHub Actions (ubuntu-latest).
+Values are measured by CI run on 2026-03-10.
+
+.. list-table:: Build time only (rst2latex/pdflatex vs rst2typstpdf)
+   :header-rows: 1
+
+   * - Tool
+     - Build time
+   * - rst2latex + pdflatex
+     - 0.6 s
+   * - rst2typstpdf
+     - 1.7 s
+
+.. list-table:: Including installation of dependencies
+   :header-rows: 1
+
+   * - Tool
+     - Install time
+     - Build time
+     - Total
+   * - rst2latex + pdflatex (+ TeX Live)
+     - 91.7 s
+     - 0.6 s
+     - 92.3 s
+   * - rst2typstpdf
+     - 0 s
+     - 1.7 s
+     - 1.7 s
+
+**rst2typstpdf is about 53.5x faster** than rst2latex+pdflatex when including the installation of TeX Live.
 
 Are you interested in this?
 ===========================
