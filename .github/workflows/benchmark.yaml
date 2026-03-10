@@ -1,0 +1,42 @@
+name: 'Benchmark'
+
+on:
+  push:
+    branches:
+      - 'main'
+      - 'benchmark'  # TODO: Remove it after implement all jobs for benchmark
+  workflow_dispatch:
+
+env:
+  UV_NO_SYNC: 1
+  TASK_X_REMOTE_TASKFILES: 1
+  GH_TOKEN: ${{ github.token }}
+
+jobs:
+  rst2latex:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: aquaproj/aqua-installer@ea518c135a02fc11ff8024364510c181a5c6b342 # v4.0.3
+        with:
+          aqua_version: v2.43.1
+      - name: 'Set up workspace'
+        run: |
+          task --yes setup-dev
+  rst2typst:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: aquaproj/aqua-installer@ea518c135a02fc11ff8024364510c181a5c6b342 # v4.0.3
+        with:
+          aqua_version: v2.43.1
+          aqua_opts: '' # Install typst in this phase.
+      - name: 'Set up workspace'
+        run: |
+          task --yes setup-dev
+      - name: 'Build demo PDF by rst2typst'
+        run: >
+          uv run rst2typstpdf
+          --page-break-level=1
+          --template=demo/template.txt
+          demo/index.rst demo-by-rst2typst.pdf
