@@ -1,51 +1,28 @@
-"""Test suite for end-to-end."""
+"""Test suite for PDF output."""
 
-import subprocess
 from pathlib import Path
 
+import fitz
 import pytest
 
-# --
-# Tests for convert by CLI arguments.
-# --
-
-_cli_cases_dir = Path(__file__).parent / "cases-cli"
+from conftest import FIXTURES_DIR
 
 
-@pytest.mark.parametrize("source", _cli_cases_dir.glob("*.rst"))
-def test_cli(source: Path):
-    """Test convert by CLI arguments.
+@pytest.mark.parametrize("source", sorted(FIXTURES_DIR.glob("*.rst")))
+def test_no_text_overlap(source: Path, open_pdf):
+    """Test that PDF output has no overlapping text blocks.
 
-    This case has three processes.
-
-    1. Convert rst to typ by rst2typst.
-    2. Compare converted Typst source and expected Typst source.
-    3. Try compile converted Typst source to pdf by typst.
+    Verify that no two text blocks on the same page overlap each other.
     """
-    expected = source.with_suffix(".typ").read_text().strip()
-    proc_rst2typst = subprocess.run(
-        ["rst2typst", str(source)],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True,
-    )
-    source.with_suffix(".pxml").write_text(
-        subprocess.run(
-            ["rst2pseudoxml", str(source)],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
-        ).stdout
-    )
-    assert proc_rst2typst.returncode == 0
-    assert not proc_rst2typst.stderr
-    assert proc_rst2typst.stdout.strip() == expected
-    proc_typst = subprocess.run(
-        ["typst", "c", "-", "-"],
-        input=proc_rst2typst.stdout.encode(),
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        cwd=source.parent,
-    )
-    assert proc_typst.returncode == 0
-    assert not proc_typst.stderr
+    doc: fitz.Document = open_pdf(source)
+    for page in doc:
+        blocks = [b for b in page.get_text("blocks") if b[6] == 0]
+        for i, b1 in enumerate(blocks):
+            r1 = fitz.Rect(b1[:4])
+            for b2 in blocks[i + 1 :]:
+                r2 = fitz.Rect(b2[:4])
+                assert (r1 & r2).is_empty, (
+                    f"Text blocks overlap on page {page.number + 1}:\n"
+                    f"  Block 1: {b1[4]!r} at {r1}\n"
+                    f"  Block 2: {b2[4]!r} at {r2}"
+                )
