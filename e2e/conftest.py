@@ -26,6 +26,7 @@ def build_pdf(tmp_path_factory):
         dest_path = out_dir / source_path.with_suffix(".pdf").name
         subprocess.run(
             ["rst2typstpdf", str(source_path), str(dest_path)],
+            check=True,
         )
         caches[source_path] = dest_path
 
