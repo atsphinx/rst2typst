@@ -1,3 +1,15 @@
+v0.1.2
+======
+
+:Date: 2026-04-29 (Asia/Tokyo)
+
+Fixes
+-----
+
+* Fix column sizing for field list key column (``auto`` instead of ``1fr``). [ `#1`_ ]
+
+.. _#1: https://github.com/atsphinx/rst2typst/issues/1
+
 v0.1.1
 ======
 
