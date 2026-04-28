@@ -274,7 +274,7 @@ class TypstTranslator(nodes.NodeVisitor):
     def visit_field_list(self, node: nodes.field_list):
         self.body.append("#table(\n")
         self._hi.push("  ")
-        self.body.append(f"{self._hi.indent}columns: (1fr, auto),\n")
+        self.body.append(f"{self._hi.indent}columns: (auto, 1fr),\n")
 
     def depart_field_list(self, node: nodes.field_list):
         self._hi.pop()

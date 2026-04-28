@@ -1,7 +1,7 @@
 NOTE: This is to render as field list.
 
 #table(
-  columns: (1fr, auto),
+  columns: (auto, 1fr),
   [Ligature],
   [A merged glyph.],
   [Kerning],
