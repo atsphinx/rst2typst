@@ -141,7 +141,35 @@ class TypstTranslator(nodes.NodeVisitor):
     # ========================================
 
     def visit_Text(self, node: nodes.Text):
-        self.body.append(f"\n{self._hi.indent}".join(node.astext().split("\n")))
+        LITERAL_NODES = (
+            nodes.literal,
+            nodes.literal_block,
+            nodes.math,
+            nodes.math_block,
+        )
+        ANY_ESCAPE_TARGET = ["#", "$", "*", "<", ">", "\\", "_", "~"]
+        HEAD_ESCAPE_TARGET = ["+", "-", "="]
+
+        def _in_literal(node: nodes.Text) -> bool:
+            n_ = node
+            while n_.parent is not None:
+                if isinstance(n_.parent, LITERAL_NODES):
+                    return True
+                n_ = n_.parent
+            return False
+
+        def _escape(text: str, is_first_line: bool = False) -> str:
+            trans = str.maketrans({c: f"\\{c}" for c in ANY_ESCAPE_TARGET})
+            text = text.translate(trans)
+            if text[0] in HEAD_ESCAPE_TARGET:
+                text = "\\" + text
+            return text
+
+        lines = [
+            _escape(line) if not _in_literal(node) else line
+            for line in node.astext().split("\n")
+        ]
+        self.body.append(f"\n{self._hi.indent}".join(lines))
 
     def depart_Text(self, node: nodes.Text):
         pass

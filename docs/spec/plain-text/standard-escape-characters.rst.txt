@@ -1,0 +1,5 @@
+$ Section like $
+
+\* is independent astarisk.
+
+<> is bracket sign that are used label in typst.
