@@ -718,6 +718,13 @@ class TypstTranslator(nodes.NodeVisitor):
             self.body.append(f"{self._hi.indent})\n\n")
             raise nodes.SkipNode
 
+    # NOTE: This node type is used by Sphinx's custom directives.
+    def visit_container(self, node: nodes.container):
+        pass
+
+    def depart_container(self, node: nodes.container):
+        pass
+
     # Miscellaneous
     # =============
     def visit_raw(self, node: nodes.raw):
