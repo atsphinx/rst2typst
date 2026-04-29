@@ -169,7 +169,7 @@ class TypstTranslator(nodes.NodeVisitor):
     def visit_section(self, node: nodes.section):
         self.section_level += 1
         if (
-            self.document.settings.page_break_level
+            hasattr(self.document.settings, "page_break_level")
             and self.section_level in self.document.settings.page_break_level
         ):
             self.body.append("#pagebreak()\n\n")
