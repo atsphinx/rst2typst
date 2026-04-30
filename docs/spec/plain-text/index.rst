@@ -40,7 +40,7 @@ These characters are escaped anywhere.
 
   .. [#] ``~`` represents a non-breaking space in Typst.
 
-These characters are escaped if they are at the start of line.
+These characters are escaped if they are at the start of a line.
 
 - :literal:`+`: plus sign [#]_
 
