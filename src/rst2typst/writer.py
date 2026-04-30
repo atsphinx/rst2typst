@@ -115,18 +115,22 @@ class TypstTranslator(nodes.NodeVisitor):
     def __init__(self, document: nodes.document):
         super().__init__(document)
         self.document = document
-        # NOTE: Guard for NotImplementedError for unknown nodes. Remove as soon as possible.
-        # If you want to known not-implemented nodes for development, set ``RST2TYPST_FULLSPEC`` into environment variable.
         if not os.environ.get("RST2TYPST_FULLSPEC", False):
+            # NOTE: Guard for NotImplementedError for unknown nodes. Remove as soon as possible.
+            # If you want to known not-implemented nodes for development, set ``RST2TYPST_FULLSPEC`` into environment variable.
 
             class WarningOnly:
                 def __contains__(self, item: Any):
                     return True
 
             self.optional = WarningOnly()
+
+        # Properties that are used by external object.
         self.includes: set[Path] = set()
         self.imports: set[tuple[str, str]] = set()
         self.body = []
+
+        # Properties to handle content for translation.
         self._section_level = 0
         self._hi = HanglingIndent()
 
