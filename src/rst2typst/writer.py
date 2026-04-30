@@ -161,7 +161,7 @@ class TypstTranslator(nodes.NodeVisitor):
         def _escape(text: str, is_first_line: bool = False) -> str:
             trans = str.maketrans({c: f"\\{c}" for c in ANY_ESCAPE_TARGET})
             text = text.translate(trans)
-            if text[0] in HEAD_ESCAPE_TARGET:
+            if text and text[0] in HEAD_ESCAPE_TARGET:
                 text = "\\" + text
             return text
 
