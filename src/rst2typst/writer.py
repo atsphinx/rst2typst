@@ -127,7 +127,7 @@ class TypstTranslator(nodes.NodeVisitor):
         self.includes: set[Path] = set()
         self.imports: set[tuple[str, str]] = set()
         self.body = []
-        self.section_level = 0
+        self._section_level = 0
         self._hi = HanglingIndent()
 
     def block_on_structural(func: Callable):
@@ -199,22 +199,22 @@ class TypstTranslator(nodes.NodeVisitor):
         pass
 
     def visit_section(self, node: nodes.section):
-        self.section_level += 1
+        self._section_level += 1
         if (
             hasattr(self.document.settings, "page_break_level")
-            and self.section_level in self.document.settings.page_break_level
+            and self._section_level in self.document.settings.page_break_level
         ):
             self.body.append("#pagebreak()\n\n")
 
     def depart_section(self, node: nodes.section):
-        self.section_level -= 1
+        self._section_level -= 1
 
     # Refs: https://typst.app/docs/reference/model/title/
     def visit_title(self, node: nodes.title):
         if isinstance(node.parent, nodes.document):
             self.body.append("#title([")
         else:
-            prefix = "=" * self.section_level
+            prefix = "=" * self._section_level
             self.body.append(f"{prefix} ")
 
     def depart_title(self, node: nodes.title):
