@@ -719,6 +719,13 @@ class TypstTranslator(nodes.NodeVisitor):
             raise nodes.SkipNode
 
     # NOTE: This node type is used by Sphinx's custom directives.
+    def visit_compound(self, node: nodes.compound):
+        pass
+
+    def depart_compound(self, node: nodes.compound):
+        pass
+
+    # NOTE: This node type is used by Sphinx's custom directives.
     def visit_container(self, node: nodes.container):
         pass
 
