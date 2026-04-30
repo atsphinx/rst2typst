@@ -1,0 +1,6 @@
+= is heading symbol in Typst. The "=" in the text is not escaped.
+
+\- is enumerated-list symbol in Typst.
+\+ is numbered-list symbol in Typst.
+
+The "-" and "+" characters at the beginning of a line must also be escaped in reStructuredText.

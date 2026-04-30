@@ -141,7 +141,35 @@ class TypstTranslator(nodes.NodeVisitor):
     # ========================================
 
     def visit_Text(self, node: nodes.Text):
-        self.body.append(f"\n{self._hi.indent}".join(node.astext().split("\n")))
+        LITERAL_NODES = (
+            nodes.literal,
+            nodes.literal_block,
+            nodes.math,
+            nodes.math_block,
+        )
+        ANY_ESCAPE_TARGET = ["#", "$", "*", "<", ">", "\\", "_", "`", "~"]
+        HEAD_ESCAPE_TARGET = ["+", "-", "="]
+
+        def _in_literal(node: nodes.Text) -> bool:
+            n_ = node
+            while n_.parent is not None:
+                if isinstance(n_.parent, LITERAL_NODES):
+                    return True
+                n_ = n_.parent
+            return False
+
+        def _escape(text: str, is_first_line: bool = False) -> str:
+            trans = str.maketrans({c: f"\\{c}" for c in ANY_ESCAPE_TARGET})
+            text = text.translate(trans)
+            if text and text[0] in HEAD_ESCAPE_TARGET:
+                text = "\\" + text
+            return text
+
+        lines = [
+            _escape(line) if not _in_literal(node) else line
+            for line in node.astext().split("\n")
+        ]
+        self.body.append(f"\n{self._hi.indent}".join(lines))
 
     def depart_Text(self, node: nodes.Text):
         pass
@@ -169,7 +197,7 @@ class TypstTranslator(nodes.NodeVisitor):
     def visit_section(self, node: nodes.section):
         self.section_level += 1
         if (
-            self.document.settings.page_break_level
+            hasattr(self.document.settings, "page_break_level")
             and self.section_level in self.document.settings.page_break_level
         ):
             self.body.append("#pagebreak()\n\n")
@@ -482,10 +510,10 @@ class TypstTranslator(nodes.NodeVisitor):
     def depart_tbody(self, node: nodes.tbody):
         pass
 
-    def depart_row(self, node: nodes.tbody):
+    def visit_row(self, node: nodes.row):
         pass
 
-    def departt_row(self, node: nodes.row):
+    def depart_row(self, node: nodes.row):
         pass
 
     def visit_entry(self, node: nodes.entry):
@@ -689,6 +717,20 @@ class TypstTranslator(nodes.NodeVisitor):
             self._hi.pop()
             self.body.append(f"{self._hi.indent})\n\n")
             raise nodes.SkipNode
+
+    # NOTE: This node type is used by Sphinx's custom directives.
+    def visit_compound(self, node: nodes.compound):
+        pass
+
+    def depart_compound(self, node: nodes.compound):
+        pass
+
+    # NOTE: This node type is used by Sphinx's custom directives.
+    def visit_container(self, node: nodes.container):
+        pass
+
+    def depart_container(self, node: nodes.container):
+        pass
 
     # Miscellaneous
     # =============
