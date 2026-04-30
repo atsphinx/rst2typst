@@ -29,5 +29,5 @@ class RemapFootnotes(Transform):
                 footnote = footnotes.pop(refid)
                 idx = ref.parent.index(ref)
                 ref.parent.insert(idx, footnote)
-            ref.children.remove(ref.children[0])
-            ref.children.append(nodes.Text(label_id))
+            ref.remove(ref.children[0])
+            ref.append(nodes.Text(label_id))
