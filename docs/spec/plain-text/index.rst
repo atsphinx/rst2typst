@@ -5,7 +5,7 @@ Plain text
 Details
 =======
 
-.. note:: When anything are in literal blocks, they are not escaped.
+.. note:: Characters inside literal blocks are not escaped.
 
 These characters are escaped anywhere.
 
@@ -40,7 +40,7 @@ These characters are escaped anywhere.
 
   .. [#] ``~`` represents a non-breaking space in Typst.
 
-These characters are escaped if they are on the head of line.
+These characters are escaped if they are at the start of line.
 
 - :literal:`+`: plus sign [#]_
 
@@ -67,7 +67,7 @@ Standard escape characters
    .. literalinclude:: standard-escape-characters.typ.txt
       :language: typst
 
-Head only escape characters
+Head-only escape characters
 ---------------------------
 
 .. tab-set-code::
