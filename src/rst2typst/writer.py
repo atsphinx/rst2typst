@@ -510,10 +510,10 @@ class TypstTranslator(nodes.NodeVisitor):
     def depart_tbody(self, node: nodes.tbody):
         pass
 
-    def depart_row(self, node: nodes.tbody):
+    def visit_row(self, node: nodes.row):
         pass
 
-    def departt_row(self, node: nodes.row):
+    def depart_row(self, node: nodes.row):
         pass
 
     def visit_entry(self, node: nodes.entry):
