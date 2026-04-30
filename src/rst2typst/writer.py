@@ -147,7 +147,7 @@ class TypstTranslator(nodes.NodeVisitor):
             nodes.math,
             nodes.math_block,
         )
-        ANY_ESCAPE_TARGET = ["#", "$", "*", "<", ">", "\\", "_", "~"]
+        ANY_ESCAPE_TARGET = ["#", "$", "*", "<", ">", "\\", "_", "`", "~"]
         HEAD_ESCAPE_TARGET = ["+", "-", "="]
 
         def _in_literal(node: nodes.Text) -> bool:
