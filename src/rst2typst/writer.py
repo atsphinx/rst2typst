@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import functools
+import os
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -111,15 +112,18 @@ class HanglingIndent(list[str]):
 
 
 class TypstTranslator(nodes.NodeVisitor):
-    # NOTE: Guard for NotImplementedError for unknown nodes. Remove as soon as possible.
-    class WarningOnly:
-        def __contains__(self, item: Any):
-            return True
-
     def __init__(self, document: nodes.document):
         super().__init__(document)
         self.document = document
-        self.optional = self.WarningOnly()
+        # NOTE: Guard for NotImplementedError for unknown nodes. Remove as soon as possible.
+        # If you want to known not-implemented nodes for development, set ``RST2TYPST_FULLSPEC`` into environment variable.
+        if not os.environ.get("RST2TYPST_FULLSPEC", False):
+
+            class WarningOnly:
+                def __contains__(self, item: Any):
+                    return True
+
+            self.optional = WarningOnly()
         self.includes: set[Path] = set()
         self.imports: set[tuple[str, str]] = set()
         self.body = []
