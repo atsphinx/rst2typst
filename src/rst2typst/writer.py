@@ -403,6 +403,20 @@ class TypstTranslator(nodes.NodeVisitor):
     def depart_description(self, node: nodes.description):
         pass
 
+    # Line Blocks
+    # -----------
+    def visit_line_block(self, node: nodes.line_block):
+        pass
+
+    def depart_line_block(self, node: nodes.line_block):
+        pass
+
+    def visit_line(self, node: nodes.line):
+        pass
+
+    def depart_line(self, node: nodes.line):
+        self.body.append(" \\\n")
+
     # Literal Blocks
     # --------------
     # Refs: https://typst.app/docs/reference/text/raw/
