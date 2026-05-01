@@ -1,3 +1,25 @@
+v0.2.0
+======
+
+:Date: 2026-05-01 (Asia/Tokyo)
+
+Features
+--------
+
+* Add translation for line block markup and directives. [ `#4`_ ]
+* Add visitor/departure for ``compound`` and ``container`` directives.
+* Escape special characters that are used in Typst syntax.
+* Toggle warning guard by environment variable.
+
+Fixes
+-----
+
+* Guard empty text node.
+* Set relation of nodes correctly.
+* Guard case that ``page_break_level`` is undefined.
+
+.. _#4: https://github.com/atsphinx/rst2typst/pull/4
+
 v0.1.2
 ======
 
