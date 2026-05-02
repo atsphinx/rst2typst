@@ -392,6 +392,13 @@ class TypstTranslator(nodes.NodeVisitor):
     visit_version = _visit_bibliographic
     depart_version = _depart_bibliographic
 
+    def visit_authors(self, node: nodes.authors):
+        self._visit_bibliographic(node)
+        for author in node.findall(nodes.author):
+            self.body.append(f" \\ {author.astext()}")
+        self._depart_bibliographic(node)
+        raise nodes.SkipNode
+
     # Option Lists
     # ------------
     @block_on_structural
