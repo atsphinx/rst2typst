@@ -765,3 +765,30 @@ class TypstTranslator(nodes.NodeVisitor):
                 self.body.append(f"{line}\n")
             self.body.append("\n")
         raise nodes.SkipNode
+
+    # ====================================================
+    # The visitors and deparers for reStructuredText Roles
+    # ====================================================
+    #
+    # They are sorted by these rules:
+    #
+    #   * The order from contents of `reStructuredText Interpreted Text Roles`_.
+    #   * When the node has children node types, write it nearby the parent node type.
+    #   * ``visit_`` is first, and ``depart_`` is second if it is exists.
+    #
+    # .. _reStructuredText Interpreted Text Roles: https://www.docutils.org/docs/ref/rst/roles.html
+
+    # Standard Roles
+    # ==============
+
+    def visit_subscript(self, node: nodes.subscript):
+        self.body.append("#sub[")
+
+    def depart_subscript(self, node: nodes.subscript):
+        self.body.append("]")
+
+    def visit_superscript(self, node: nodes.superscript):
+        self.body.append("#sup[")
+
+    def depart_superscript(self, node: nodes.superscript):
+        self.body.append("]")

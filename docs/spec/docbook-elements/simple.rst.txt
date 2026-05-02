@@ -1,0 +1,6 @@
+..
+   These examples are from docutils document.
+
+Key events of the 20\ :sup:`th` century.
+
+The chemical formula for water is H\ :sub:`2`\ O.
