@@ -31,3 +31,22 @@ class RemapFootnotes(Transform):
                 ref.parent.insert(idx, footnote)
             ref.remove(ref.children[0])
             ref.append(nodes.Text(label_id))
+
+
+class AssignLiteralLanguage(Transform):
+    """Transformer to inject 'language' attribute into all <literal> and <literal_block> nodes."""
+
+    def _assign_language(self, node: nodes.Element):
+        if "language" in node:
+            return
+        if "classes" not in node:
+            return
+        if "code" not in node["classes"]:
+            return
+        node["language"] = node["classes"][-1]
+
+    def apply(self, **kwargs):
+        for node in self.document.findall(nodes.literal):
+            self._assign_language(node)
+        for node in self.document.findall(nodes.literal_block):
+            self._assign_language(node)
