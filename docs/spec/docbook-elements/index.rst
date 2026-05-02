@@ -25,4 +25,26 @@ Simple usage
 References
 ==========
 
-(TBD)
+Subscripts
+----------
+
+Docutils:
+
+* https://www.docutils.org/docs/ref/rst/roles.html#subscript
+* https://www.docutils.org/docs/ref/doctree.html#subscript
+
+Typst:
+
+* https://typst.app/docs/reference/text/sub/
+
+Superscripts
+------------
+
+Docutils:
+
+* https://www.docutils.org/docs/ref/rst/roles.html#superscript
+* https://www.docutils.org/docs/ref/doctree.html#superscript
+
+Typst:
+
+* https://typst.app/docs/reference/text/super
