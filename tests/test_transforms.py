@@ -17,7 +17,7 @@ class Test_AssignLiteralLanguage:
         doctree = publish_doctree(textwrap.dedent(source).strip())
         transform = t.AssignLiteralLanguage(doctree)
         transform.apply()
-        node = list(transform.document.findall(nodes.literal))[0]
+        node = next(transform.document.findall(nodes.literal))
         assert "language" in node
         assert node["language"] == "python"
 
@@ -31,6 +31,6 @@ class Test_AssignLiteralLanguage:
         doctree = publish_doctree(textwrap.dedent(source).strip())
         transform = t.AssignLiteralLanguage(doctree)
         transform.apply()
-        node = list(transform.document.findall(nodes.literal_block))[0]
+        node = next(transform.document.findall(nodes.literal_block))
         assert "language" in node
         assert node["language"] == "python"
