@@ -54,6 +54,17 @@ Language roles (using "Interprepted text")
    .. literalinclude:: language-roles.typ.txt
       :language: typst
 
+Title references
+----------------
+
+.. tab-set-code::
+
+   .. literalinclude:: title-references.rst.txt
+      :language: rst
+
+   .. literalinclude:: title-references.typ.txt
+      :language: typst
+
 References
 ==========
 

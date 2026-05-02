@@ -770,3 +770,50 @@ class TypstTranslator(nodes.NodeVisitor):
                 self.body.append(f"{line}\n")
             self.body.append("\n")
         raise nodes.SkipNode
+
+    # ====================================================
+    # The visitors and deparers for reStructuredText Roles
+    # ====================================================
+    #
+    # They are sorted by these rules:
+    #
+    #   * The order from contents of `reStructuredText Interpreted Text Roles`_.
+    #   * When the node has children node types, write it nearby the parent node type.
+    #   * ``visit_`` is first, and ``depart_`` is second if it is exists.
+    #
+    # .. _reStructuredText Interpreted Text Roles: https://www.docutils.org/docs/ref/rst/roles.html
+
+    # Standard Roles
+    # ==============
+    # NOTE: Typst doesn't have features for abbreviation.
+    def visit_abbreviation(self, node: nodes.abbreviation):
+        pass
+
+    def depart_abbreviation(self, node: nodes.abbreviation):
+        pass
+
+    # NOTE: Typst doesn't have features for acronyms.
+    def visit_acronym(self, node: nodes.acronym):
+        pass
+
+    def depart_acronym(self, node: nodes.acronym):
+        pass
+
+    def visit_subscript(self, node: nodes.subscript):
+        self.body.append("#sub[")
+
+    def depart_subscript(self, node: nodes.subscript):
+        self.body.append("]")
+
+    def visit_superscript(self, node: nodes.superscript):
+        self.body.append("#super[")
+
+    def depart_superscript(self, node: nodes.superscript):
+        self.body.append("]")
+
+    # NOTE: At this time, we have intentionally taken no action for this node. Adjustments will be necessary as needed.
+    def visit_title_reference(self, node: nodes.title_reference):
+        pass
+
+    def depart_title_reference(self, node: nodes.title_reference):
+        pass
