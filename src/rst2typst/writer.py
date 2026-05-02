@@ -367,7 +367,7 @@ class TypstTranslator(nodes.NodeVisitor):
 
     def _visit_bibliographic(self, node: nodes.Bibliographic):
         title = node.__class__.__name__.title()
-        self.body.append(f"{self._hi.prefix}{title}: ")
+        self.body.append(f"{self._hi.prefix}{title}: \\ ")
 
     def _depart_bibliographic(self, node: nodes.Bibliographic):
         self.body.append("\n")
@@ -394,8 +394,9 @@ class TypstTranslator(nodes.NodeVisitor):
 
     def visit_authors(self, node: nodes.authors):
         self._visit_bibliographic(node)
-        for author in node.findall(nodes.author):
-            self.body.append(f" \\ {author.astext()}")
+        self.body.append(
+            " \\ ".join(author.astext() for author in node.findall(nodes.author))
+        )
         self._depart_bibliographic(node)
         raise nodes.SkipNode
 
