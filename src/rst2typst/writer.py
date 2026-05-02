@@ -805,3 +805,10 @@ class TypstTranslator(nodes.NodeVisitor):
 
     def depart_superscript(self, node: nodes.superscript):
         self.body.append("]")
+
+    # NOTE: At this time, we have intentionally taken no action for this node. Adjustments will be necessary as needed.
+    def visit_title_reference(self, node: nodes.title_reference):
+        pass
+
+    def depart_title_reference(self, node: nodes.title_reference):
+        pass
