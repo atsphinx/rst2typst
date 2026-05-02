@@ -801,7 +801,7 @@ class TypstTranslator(nodes.NodeVisitor):
         self.body.append("]")
 
     def visit_superscript(self, node: nodes.superscript):
-        self.body.append("#sup[")
+        self.body.append("#super[")
 
     def depart_superscript(self, node: nodes.superscript):
         self.body.append("]")
