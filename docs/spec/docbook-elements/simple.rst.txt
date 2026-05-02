@@ -1,6 +1,10 @@
 ..
    These examples are from docutils document.
 
+:abbreviation:`St` is a common abbreviation for "street".
+
+`WWW`:acronym: is the acronym for the world wide web.
+
 Key events of the 20\ :sup:`th` century.
 
 The chemical formula for water is H\ :sub:`2`\ O.

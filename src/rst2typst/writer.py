@@ -780,6 +780,19 @@ class TypstTranslator(nodes.NodeVisitor):
 
     # Standard Roles
     # ==============
+    # NOTE: Typst doesn't have features for abbreviation.
+    def visit_abbreviation(self, node: nodes.abbreviation):
+        pass
+
+    def depart_abbreviation(self, node: nodes.abbreviation):
+        pass
+
+    # NOTE: Typst doesn't have features for acronyms.
+    def visit_acronym(self, node: nodes.acronym):
+        pass
+
+    def depart_acronym(self, node: nodes.acronym):
+        pass
 
     def visit_subscript(self, node: nodes.subscript):
         self.body.append("#sub[")
