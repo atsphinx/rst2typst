@@ -36,6 +36,8 @@ class RemapFootnotes(Transform):
 class AssignLiteralLanguage(Transform):
     """Transformer to inject 'language' attribute into all <literal> and <literal_block> nodes."""
 
+    default_priority = 400
+
     def _assign_language(self, node: nodes.Element):
         if "language" in node:
             return

@@ -64,6 +64,7 @@ class Writer(BaseWriter):
 
     def get_transforms(self):
         return super().get_transforms() + [
+            transforms.AssignLiteralLanguage,
             transforms.RemapFootnotes,
         ]
 
@@ -429,9 +430,10 @@ class TypstTranslator(nodes.NodeVisitor):
     # --------------
     # Refs: https://typst.app/docs/reference/text/raw/
     def visit_literal_block(self, node: nodes.literal_block):
-        if "code" in node["classes"]:
-            code = node["classes"][-1]
-            self.body.append(f"```{code}\n")
+        # NOTE: It finds the highlighting language using the "language" attribute set by transforms.
+        lang = node.get("language", None)
+        if lang:
+            self.body.append(f"```{lang}\n")
             return
         self.body.append("```\n")
 
@@ -595,13 +597,13 @@ class TypstTranslator(nodes.NodeVisitor):
     def _enclose_literal(walk: Literal["visit", "depart"]):
         def _enclose(self, node: nodes.literal):
             closure = "`"
-            # TODO: Correct way to detect language
-            if "code" not in node["classes"]:
+            # NOTE: It finds the highlighting language using the "language" attribute set by transforms.
+            if "language" not in node:
                 pass
             elif walk == "depart":
                 closure = "```"
             else:
-                closure = f"```{node['classes'][-1]} "
+                closure = f"```{node['language']} "
             self.body.append(closure)
 
         return _enclose
