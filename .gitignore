@@ -2,6 +2,7 @@
 ### command with: node python
 
 .task
+.nvim.lua
 
 ### Node ###
 # Logs
