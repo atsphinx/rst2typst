@@ -45,6 +45,8 @@ class AssignLiteralLanguage(Transform):
             return
         if "code" not in node["classes"]:
             return
+        if len(node["classes"]) < 2:
+            return
         node["language"] = node["classes"][-1]
 
     def apply(self, **kwargs):

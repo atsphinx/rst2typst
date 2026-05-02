@@ -34,3 +34,16 @@ class Test_AssignLiteralLanguage:
         node = next(transform.document.findall(nodes.literal_block))
         assert "language" in node
         assert node["language"] == "python"
+
+    def test_skip_literal_block(self):
+        source = """
+        .. code::
+
+           def hello():
+               return "world"
+        """
+        doctree = publish_doctree(textwrap.dedent(source).strip())
+        transform = t.AssignLiteralLanguage(doctree)
+        transform.apply()
+        node = next(transform.document.findall(nodes.literal_block))
+        assert "language" not in node
