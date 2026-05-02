@@ -228,6 +228,11 @@ class TypstTranslator(nodes.NodeVisitor):
         else:
             self.body.append("\n\n")
 
+    def visit_transition(self, node: nodes.transition):
+        # NOTE: It controls the line length using an external parameter if needed.
+        self.body.append(f"\n{self._hi.indent}#line(100%)\n")
+        raise nodes.SkipNode
+
     # Body Elements
     # =============
     @block_on_structural
