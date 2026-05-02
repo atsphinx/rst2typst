@@ -1,5 +1,5 @@
 hello
 
-#line()
+#line(100%)
 
 world
