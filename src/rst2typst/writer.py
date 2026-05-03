@@ -112,6 +112,17 @@ class HanglingIndent(list[str]):
         return self.prefix == self.indent
 
 
+def escape(text: str) -> str:
+    """Escape special characters in Typst."""
+    ANY_ESCAPE_TARGET = ["#", "$", "*", "<", ">", "\\", "_", "`", "~"]
+    HEAD_ESCAPE_TARGET = ["+", "-", "="]
+    trans = str.maketrans({c: f"\\{c}" for c in ANY_ESCAPE_TARGET})
+    text = text.translate(trans)
+    if text and text[0] in HEAD_ESCAPE_TARGET:
+        text = "\\" + text
+    return text
+
+
 class TypstTranslator(nodes.NodeVisitor):
     def __init__(self, document: nodes.document):
         super().__init__(document)
@@ -157,8 +168,6 @@ class TypstTranslator(nodes.NodeVisitor):
             nodes.math,
             nodes.math_block,
         )
-        ANY_ESCAPE_TARGET = ["#", "$", "*", "<", ">", "\\", "_", "`", "~"]
-        HEAD_ESCAPE_TARGET = ["+", "-", "="]
 
         def _in_literal(node: nodes.Text) -> bool:
             n_ = node
@@ -168,15 +177,8 @@ class TypstTranslator(nodes.NodeVisitor):
                 n_ = n_.parent
             return False
 
-        def _escape(text: str, is_first_line: bool = False) -> str:
-            trans = str.maketrans({c: f"\\{c}" for c in ANY_ESCAPE_TARGET})
-            text = text.translate(trans)
-            if text and text[0] in HEAD_ESCAPE_TARGET:
-                text = "\\" + text
-            return text
-
         lines = [
-            _escape(line) if not _in_literal(node) else line
+            escape(line) if not _in_literal(node) else line
             for line in node.astext().split("\n")
         ]
         self.body.append(f"\n{self._hi.indent}".join(lines))
@@ -367,7 +369,7 @@ class TypstTranslator(nodes.NodeVisitor):
 
     def _visit_bibliographic(self, node: nodes.Bibliographic):
         title = node.__class__.__name__.title()
-        self.body.append(f"{self._hi.prefix}{title}: ")
+        self.body.append(f"{self._hi.prefix}{title}: \\ ")
 
     def _depart_bibliographic(self, node: nodes.Bibliographic):
         self.body.append("\n")
@@ -391,6 +393,16 @@ class TypstTranslator(nodes.NodeVisitor):
     depart_status = _depart_bibliographic
     visit_version = _visit_bibliographic
     depart_version = _depart_bibliographic
+
+    def visit_authors(self, node: nodes.authors):
+        self._visit_bibliographic(node)
+        self.body.append(
+            " \\ ".join(
+                escape(author.astext()) for author in node.findall(nodes.author)
+            )
+        )
+        self._depart_bibliographic(node)
+        raise nodes.SkipNode
 
     # Option Lists
     # ------------
