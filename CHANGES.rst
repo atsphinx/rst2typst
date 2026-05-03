@@ -1,3 +1,30 @@
+v0.3.0
+======
+
+:Date: 2026-05-03 (Asia/Tokyo)
+
+Features
+--------
+
+* Support doctest-block. [ `#9`_ ]
+* Define visitor/departure for ``transition``. [ `#7`_ ]
+* Define visitor/departure for ``superscript`` and ``subscript``.
+* Implement passing function for unsupported inline syntax.
+* Pending implement for ``title-reference``.
+* Format Bibliographic elements with keys and values on separate lines. [ `#12`_ ]
+* Render ``authors`` as multi-line value of field with escaping. [ `#12`_ ]
+* Define transformer for literal nodes.
+
+Fixes
+-----
+
+* Guard case that node does not have language. [ `#5`_ ]
+
+.. _#5: https://github.com/atsphinx/rst2typst/issues/5
+.. _#7: https://github.com/atsphinx/rst2typst/pull/7
+.. _#9: https://github.com/atsphinx/rst2typst/pull/9
+.. _#12: https://github.com/atsphinx/rst2typst/pull/12
+
 v0.2.0
 ======
 
