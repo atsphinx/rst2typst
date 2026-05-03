@@ -151,6 +151,7 @@ class TypstTranslator(nodes.NodeVisitor):
 
     def visit_Text(self, node: nodes.Text):
         LITERAL_NODES = (
+            nodes.doctest_block,
             nodes.literal,
             nodes.literal_block,
             nodes.math,
@@ -483,7 +484,11 @@ class TypstTranslator(nodes.NodeVisitor):
 
     # Doctest Blocks
     # --------------
-    # TODO: Implement after
+    def visit_doctest_block(self, node: nodes.doctest_block):
+        self.body.append("```python\n")
+
+    def depart_doctest_block(self, node: nodes.doctest_block):
+        self.body.append("\n```\n\n")
 
     # Tables
     # ------

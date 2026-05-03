@@ -32,6 +32,17 @@ Code-block directive (PHP)
    .. literalinclude:: code-block-php.typ.txt
       :language: typst
 
+Doctests
+--------
+
+.. tab-set-code::
+
+   .. literalinclude:: doctest.rst.txt
+      :language: rst
+
+   .. literalinclude:: doctest.typ.txt
+      :language: typst
+
 References
 ==========
 
@@ -39,6 +50,8 @@ Docutils:
 
 * https://docutils.sourceforge.io/docs/ref/rst/directives.html#code
 * https://docutils.sourceforge.io/docs/ref/doctree.html#literal-block
+* https://www.docutils.org/docs/ref/rst/restructuredtext.html#doctest-blocks
+* https://www.docutils.org/docs/ref/doctree.html#doctest-block
 
 Typst:
 
