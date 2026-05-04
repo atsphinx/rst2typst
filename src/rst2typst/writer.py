@@ -125,7 +125,6 @@ def escape(text: str) -> str:
 class TypstTranslator(nodes.NodeVisitor):
     def __init__(self, document: nodes.document):
         super().__init__(document)
-        self.document = document
         # Properties that are used by external object.
         self.includes: set[Path] = set()
         self.imports: set[tuple[str, str]] = set()
