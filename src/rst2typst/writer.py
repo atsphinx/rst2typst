@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import functools
-import os
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -14,7 +13,7 @@ from . import transforms
 from .frontend import validate_comma_separated_int
 
 if TYPE_CHECKING:
-    from typing import Any, Callable, Literal
+    from typing import Callable, Literal
 
 
 class Writer(BaseWriter):
@@ -126,16 +125,6 @@ def escape(text: str) -> str:
 class TypstTranslator(nodes.NodeVisitor):
     def __init__(self, document: nodes.document):
         super().__init__(document)
-        if not os.environ.get("RST2TYPST_FULLSPEC", False):
-            # NOTE: Guard for NotImplementedError for unknown nodes. Remove as soon as possible.
-            # If you want to known not-implemented nodes for development, set ``RST2TYPST_FULLSPEC`` into environment variable.
-
-            class WarningOnly:
-                def __contains__(self, item: Any):
-                    return True
-
-            self.optional = WarningOnly()
-
         # Properties that are used by external object.
         self.includes: set[Path] = set()
         self.imports: set[tuple[str, str]] = set()
@@ -641,6 +630,7 @@ class TypstTranslator(nodes.NodeVisitor):
         self.body.append("`)")
 
     def visit_reference(self, node: nodes.reference):
+        # TODO: Currently, it doesn't support internal reference.
         if "refuri" in node:
             href = node["refuri"]
             self.body.append(f'#link("{href}")[')
@@ -652,6 +642,13 @@ class TypstTranslator(nodes.NodeVisitor):
 
     def depart_reference(self, node: nodes.reference):
         self.body.append("]")
+
+    def visit_target(self, node: nodes.target):
+        # TODO: Currently, it doesn't support internal reference.
+        pass
+
+    def depart_target(self, node: nodes.target):
+        pass
 
     # =========================================================
     # The visitors and deparers for reStructuredText Directives
@@ -727,6 +724,9 @@ class TypstTranslator(nodes.NodeVisitor):
         self.body.append(f"{self._hi.indent}){suffix}")
         if isinstance(node.parent, nodes.reference):
             self._hi.pop()
+
+    def depart_image(self, node: nodes.image):
+        pass
 
     def visit_figure(self, node: nodes.figure):
         # FIXME: Implement is complex.
@@ -832,4 +832,13 @@ class TypstTranslator(nodes.NodeVisitor):
         pass
 
     def depart_title_reference(self, node: nodes.title_reference):
+        pass
+
+    # =============
+    # Miscellaneous
+    # =============
+    def visit_inline(self, node: nodes.inline):
+        pass
+
+    def depart_inline(self, node: nodes.inline):
         pass
