@@ -1,3 +1,16 @@
+v0.3.1
+======
+
+:Date: 2026-05-04 (Asia/Tokyo)
+
+Fixes
+-----
+
+* Remove guard using ``WarningOnly`` and use pending implement nodes visitor/departure instead. [ `#15`_ ]
+* Remove proc that is already implemented by super class.
+
+.. _#15: https://github.com/atsphinx/rst2typst/pull/15
+
 v0.3.0
 ======
 
