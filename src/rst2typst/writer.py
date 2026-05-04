@@ -631,6 +631,7 @@ class TypstTranslator(nodes.NodeVisitor):
         self.body.append("`)")
 
     def visit_reference(self, node: nodes.reference):
+        # TODO: Currently, it doesn't support internal reference.
         if "refuri" in node:
             href = node["refuri"]
             self.body.append(f'#link("{href}")[')
@@ -642,6 +643,13 @@ class TypstTranslator(nodes.NodeVisitor):
 
     def depart_reference(self, node: nodes.reference):
         self.body.append("]")
+
+    def visit_target(self, node: nodes.target):
+        # TODO: Currently, it doesn't support internal reference.
+        pass
+
+    def depart_target(self, node: nodes.target):
+        pass
 
     # =========================================================
     # The visitors and deparers for reStructuredText Directives
@@ -717,6 +725,9 @@ class TypstTranslator(nodes.NodeVisitor):
         self.body.append(f"{self._hi.indent}){suffix}")
         if isinstance(node.parent, nodes.reference):
             self._hi.pop()
+
+    def depart_image(self, node: nodes.image):
+        pass
 
     def visit_figure(self, node: nodes.figure):
         # FIXME: Implement is complex.
@@ -822,4 +833,13 @@ class TypstTranslator(nodes.NodeVisitor):
         pass
 
     def depart_title_reference(self, node: nodes.title_reference):
+        pass
+
+    # =============
+    # Miscellaneous
+    # =============
+    def visit_inline(self, node: nodes.inline):
+        pass
+
+    def depart_inline(self, node: nodes.inline):
         pass
