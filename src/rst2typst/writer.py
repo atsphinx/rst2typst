@@ -126,7 +126,6 @@ def escape(text: str) -> str:
 class TypstTranslator(nodes.NodeVisitor):
     def __init__(self, document: nodes.document):
         super().__init__(document)
-        self.document = document
         if not os.environ.get("RST2TYPST_FULLSPEC", False):
             # NOTE: Guard for NotImplementedError for unknown nodes. Remove as soon as possible.
             # If you want to known not-implemented nodes for development, set ``RST2TYPST_FULLSPEC`` into environment variable.
