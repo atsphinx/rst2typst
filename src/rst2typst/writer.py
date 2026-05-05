@@ -40,6 +40,15 @@ class Writer(BaseWriter):
                     "metavar": "<filepath>",
                 },
             ),
+            (
+                'Disable appending "import" statement for local packages',
+                ["--no-import-local-package"],
+                {
+                    "action": "store_true",
+                    "dest": "no_import_local_package",
+                    "default": False,
+                },
+            ),
         ),
     )
 
@@ -76,6 +85,17 @@ class Writer(BaseWriter):
         self.output = (
             Path(self.document.settings.template).read_text().format(**self.parts)
         )
+        self.display_warnings()
+
+    def display_warnings(self):
+        if not self.document.settings.no_import_local_package:
+            print("NOTE:")
+            print(
+                'The generated Typst code might fail to compile because it includes an "import" expression for a local package.'
+            )
+            print(
+                'If you want to exclude "import" statements, use the "--no-import-local-package" flag.'
+            )
 
 
 class HanglingIndent(list[str]):
@@ -348,7 +368,8 @@ class TypstTranslator(nodes.NodeVisitor):
     # Bibliographic Fields
     # --------------------
     def visit_docinfo(self, node: nodes.docinfo):
-        self.imports.add(self.local_package_name, "docinfo")
+        if not self.document.settings.no_import_local_package:
+            self.imports.add(self.local_package_name, "docinfo")
         self.body.append(f"{self._hi.indent}#docinfo()[\n")
         self._hi.push("  / ")
 
@@ -667,7 +688,8 @@ class TypstTranslator(nodes.NodeVisitor):
     # ===========
     def _enclose_admonition(node_name: str, title: str | None = None):
         def _visit(self, node: nodes.Element):
-            self.imports.add(self.local_package_name, "admonition")
+            if not self.document.settings.no_import_local_package:
+                self.imports.add(self.local_package_name, "admonition")
 
             nonlocal title
             if isinstance(node.parent, nodes.Structural):

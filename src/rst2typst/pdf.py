@@ -31,3 +31,6 @@ class Writer(BaseWriter):
         super().translate()
         install_package(force=self.document.settings.force_install_package)
         self.output = typst.compile(self.output.encode())
+
+    def display_warnings(self):
+        pass
