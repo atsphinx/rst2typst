@@ -134,6 +134,11 @@ class TypstTranslator(nodes.NodeVisitor):
         self._section_level = 0
         self._hi = HanglingIndent()
 
+    @functools.cached_property
+    def local_package_name(self) -> str:
+        version = metadata.version("rst2typst")
+        return f"@local/rst2typst:{version}"
+
     def block_on_structural(func: Callable):
         @functools.wraps(func)
         def _block_on_structural(self, node: nodes.Element):
@@ -346,9 +351,8 @@ class TypstTranslator(nodes.NodeVisitor):
     # Bibliographic Fields
     # --------------------
     def visit_docinfo(self, node: nodes.docinfo):
-        module_path = Path(__file__).parent / "docinfo.typ"
-        self.includes.add(module_path)
-        self.body.append(f"{self._hi.indent}#docinfo-callout()[\n")
+        self.imports.add(self.local_package_name, "docinfo")
+        self.body.append(f"{self._hi.indent}#docinfo()[\n")
         self._hi.push("  / ")
 
     def depart_docinfo(self, node: nodes.docinfo):
@@ -666,8 +670,7 @@ class TypstTranslator(nodes.NodeVisitor):
     # ===========
     def _enclose_admonition(node_name: str, title: str | None = None):
         def _visit(self, node: nodes.Element):
-            version = metadata.version("rst2typst")
-            self.imports.add(f"@local/rst2typst:{version}", "admonition")
+            self.imports.add(self.local_package_name, "admonition")
 
             nonlocal title
             if isinstance(node.parent, nodes.Structural):
