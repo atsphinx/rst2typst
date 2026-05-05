@@ -1,3 +1,27 @@
+v0.4.0
+======
+
+:Date: 2026-05-06 (Asia/Tokyo)
+
+Breaking changes
+----------------
+
+* Remove ``includes`` from generated Typst source. [ `#17`_ ]
+
+Features
+--------
+
+* Define custom Typst package to provide callouts (admonitions, docinfo). [ `#17`_ ]
+
+  * Define ``PackageRegistry`` to manage ``import`` syntax.
+  * Migrate admonition and docinfo modules into package.
+  * Install Typst package into local package directory.
+
+* Add ``--force-install-package`` flag to ``rst2typstpdf``. [ `#17`_ ]
+* Add ``--no-import-local-package`` option to ``rst2typst``. [ `#17`_ ]
+
+.. _#17: https://github.com/atsphinx/rst2typst/pull/17
+
 v0.3.1
 ======
 
