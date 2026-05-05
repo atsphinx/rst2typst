@@ -51,3 +51,8 @@ path = ".github/release-body.md"
 regex = true
 search = "- Diff is .+"
 replace = "- Diff is https://github.com/atsphinx/rst2typst/compare/v{{ current_version }}...v{{ new_version }}/"
+
+[[files]]
+path = "src/rst2typst/package/typst.toml"
+search = "version = \"{{current_version}}\""
+replace = "version = \"{{new_version}}\""
