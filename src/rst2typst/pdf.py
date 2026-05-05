@@ -15,7 +15,7 @@ class Writer(BaseWriter):
         None,
         (
             (
-                "Install Typst local package forcely.",
+                "Install Typst local package forcibly.",
                 ["--force-install-package"],
                 {
                     "action": "store_true",
