@@ -16,5 +16,6 @@ tasks:
         index.rst index.typ
       - >
         uv run rst2typstpdf
+        --force-install-package
         {{.CLI_OPTIONS}}
         index.rst {{ default "." .PDF_OUTPUT_DIR }}/demo.pdf
