@@ -50,7 +50,7 @@ class Writer(BaseWriter):
 
     config_section = "typst writer"
 
-    visitor_attributes = {"body", "includes"}
+    visitor_attributes = {"body", "imports"}
 
     def __init__(self):
         super().__init__()
@@ -58,7 +58,6 @@ class Writer(BaseWriter):
         self.parts = {
             "body": "",
             "imports": "",
-            "includes": "",
             "prologue": "",
             "epilogue": "",
         }
@@ -74,7 +73,6 @@ class Writer(BaseWriter):
         self.document.walkabout(visitor)  # type: ignore[possibly-missing-attribute]
         self.parts["body"] = "".join(visitor.body)
         self.parts["imports"] = visitor.imports.code
-        self.parts["includes"] = "\n".join([i.read_text() for i in visitor.includes])
         self.output = (
             Path(self.document.settings.template).read_text().format(**self.parts)
         )
@@ -126,7 +124,6 @@ class TypstTranslator(nodes.NodeVisitor):
     def __init__(self, document: nodes.document):
         super().__init__(document)
         # Properties that are used by external object.
-        self.includes: set[Path] = set()
         self.imports = PackageRegistry()
         self.body = []
 
