@@ -1,9 +1,7 @@
 #import "@preview/mmdr:0.1.0": mermaid
-
 {imports}
-{includes}
 
-#let docinfo-callout(content) = {{
+#let docinfo(content) = {{
   [
     #v(1fr)
     #align(right)[#box(width: 50%)[#align(left)[

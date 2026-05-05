@@ -1,4 +1,4 @@
-#docinfo-callout()[
+#docinfo()[
   / Date: \ 2026-02-12
   / Version: \ 0.0.0
   / Authors: \ Kazuya Takei \ Kazuki Takei

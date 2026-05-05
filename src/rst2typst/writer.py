@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import functools
+from importlib import metadata
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -11,6 +12,7 @@ from docutils.writers import Writer as BaseWriter
 
 from . import transforms
 from .frontend import validate_comma_separated_int
+from .package import PackageRegistry
 
 if TYPE_CHECKING:
     from typing import Callable, Literal
@@ -38,6 +40,15 @@ class Writer(BaseWriter):
                     "metavar": "<filepath>",
                 },
             ),
+            (
+                'Disable appending "import" statement for local packages',
+                ["--no-import-local-package"],
+                {
+                    "action": "store_true",
+                    "dest": "no_import_local_package",
+                    "default": False,
+                },
+            ),
         ),
     )
 
@@ -48,7 +59,7 @@ class Writer(BaseWriter):
 
     config_section = "typst writer"
 
-    visitor_attributes = {"body", "includes"}
+    visitor_attributes = {"body", "imports"}
 
     def __init__(self):
         super().__init__()
@@ -56,7 +67,6 @@ class Writer(BaseWriter):
         self.parts = {
             "body": "",
             "imports": "",
-            "includes": "",
             "prologue": "",
             "epilogue": "",
         }
@@ -71,13 +81,21 @@ class Writer(BaseWriter):
         visitor: TypstTranslator = self.translator_class(self.document)
         self.document.walkabout(visitor)  # type: ignore[possibly-missing-attribute]
         self.parts["body"] = "".join(visitor.body)
-        self.parts["imports"] = "\n".join(
-            [f'#import "{name}": {symbol}' for name, symbol in visitor.imports]
-        )
-        self.parts["includes"] = "\n".join([i.read_text() for i in visitor.includes])
+        self.parts["imports"] = visitor.imports.code
         self.output = (
             Path(self.document.settings.template).read_text().format(**self.parts)
         )
+        self.display_warnings()
+
+    def display_warnings(self):
+        if not self.document.settings.no_import_local_package:
+            print("NOTE:")
+            print(
+                'The generated Typst code might fail to compile because it includes an "import" expression for a local package.'
+            )
+            print(
+                'If you want to exclude "import" statements, use the "--no-import-local-package" flag.'
+            )
 
 
 class HanglingIndent(list[str]):
@@ -126,13 +144,17 @@ class TypstTranslator(nodes.NodeVisitor):
     def __init__(self, document: nodes.document):
         super().__init__(document)
         # Properties that are used by external object.
-        self.includes: set[Path] = set()
-        self.imports: set[tuple[str, str]] = set()
+        self.imports = PackageRegistry()
         self.body = []
 
         # Properties to handle content for translation.
         self._section_level = 0
         self._hi = HanglingIndent()
+
+    @functools.cached_property
+    def local_package_name(self) -> str:
+        version = metadata.version("rst2typst")
+        return f"@local/rst2typst:{version}"
 
     def block_on_structural(func: Callable):
         @functools.wraps(func)
@@ -346,9 +368,9 @@ class TypstTranslator(nodes.NodeVisitor):
     # Bibliographic Fields
     # --------------------
     def visit_docinfo(self, node: nodes.docinfo):
-        module_path = Path(__file__).parent / "docinfo.typ"
-        self.includes.add(module_path)
-        self.body.append(f"{self._hi.indent}#docinfo-callout()[\n")
+        if not self.document.settings.no_import_local_package:
+            self.imports.add(self.local_package_name, "docinfo")
+        self.body.append(f"{self._hi.indent}#docinfo()[\n")
         self._hi.push("  / ")
 
     def depart_docinfo(self, node: nodes.docinfo):
@@ -450,7 +472,7 @@ class TypstTranslator(nodes.NodeVisitor):
     # ----
     @block_on_structural
     def visit_math_block(self, node: nodes.math):
-        self.imports.add(("@preview/mitex:0.2.6", "*"))
+        self.imports.add("@preview/mitex:0.2.6")
         self.body.append(f"{self._hi.indent}#mitex(`\n")
         self._hi.push("  ")
         self.body.append(self._hi.indent)
@@ -623,7 +645,7 @@ class TypstTranslator(nodes.NodeVisitor):
     depart_literal = _enclose_literal("depart")
 
     def visit_math(self, node: nodes.math):
-        self.imports.add(("@preview/mitex:0.2.6", "*"))
+        self.imports.add("@preview/mitex:0.2.6")
         self.body.append("#mi(`")
 
     def depart_math(self, node: nodes.math):
@@ -666,8 +688,8 @@ class TypstTranslator(nodes.NodeVisitor):
     # ===========
     def _enclose_admonition(node_name: str, title: str | None = None):
         def _visit(self, node: nodes.Element):
-            module_path = Path(__file__).parent / "admonition.typ"
-            self.includes.add(module_path)
+            if not self.document.settings.no_import_local_package:
+                self.imports.add(self.local_package_name, "admonition")
 
             nonlocal title
             if isinstance(node.parent, nodes.Structural):
@@ -678,7 +700,7 @@ class TypstTranslator(nodes.NodeVisitor):
                 title = node.children[title_idx].astext()
                 node.remove(node.children[title_idx])
 
-            self.body.append(f"{self._hi.indent}#admonition-callout(\n")
+            self.body.append(f"{self._hi.indent}#admonition(\n")
             self._hi.push("  ")
             self.body.append(f'{self._hi.indent}"{node_name}", "{title}",\n')
             self.body.append(f"{self._hi.indent}[")
