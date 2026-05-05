@@ -12,6 +12,7 @@ from docutils.writers import Writer as BaseWriter
 
 from . import transforms
 from .frontend import validate_comma_separated_int
+from .package import PackageRegistry
 
 if TYPE_CHECKING:
     from typing import Callable, Literal
@@ -72,9 +73,7 @@ class Writer(BaseWriter):
         visitor: TypstTranslator = self.translator_class(self.document)
         self.document.walkabout(visitor)  # type: ignore[possibly-missing-attribute]
         self.parts["body"] = "".join(visitor.body)
-        self.parts["imports"] = "\n".join(
-            [f'#import "{name}": {symbol}' for name, symbol in visitor.imports]
-        )
+        self.parts["imports"] = visitor.imports.code
         self.parts["includes"] = "\n".join([i.read_text() for i in visitor.includes])
         self.output = (
             Path(self.document.settings.template).read_text().format(**self.parts)
@@ -128,7 +127,7 @@ class TypstTranslator(nodes.NodeVisitor):
         super().__init__(document)
         # Properties that are used by external object.
         self.includes: set[Path] = set()
-        self.imports: set[tuple[str, str]] = set()
+        self.imports = PackageRegistry()
         self.body = []
 
         # Properties to handle content for translation.
@@ -451,7 +450,7 @@ class TypstTranslator(nodes.NodeVisitor):
     # ----
     @block_on_structural
     def visit_math_block(self, node: nodes.math):
-        self.imports.add(("@preview/mitex:0.2.6", "*"))
+        self.imports.add("@preview/mitex:0.2.6")
         self.body.append(f"{self._hi.indent}#mitex(`\n")
         self._hi.push("  ")
         self.body.append(self._hi.indent)
@@ -624,7 +623,7 @@ class TypstTranslator(nodes.NodeVisitor):
     depart_literal = _enclose_literal("depart")
 
     def visit_math(self, node: nodes.math):
-        self.imports.add(("@preview/mitex:0.2.6", "*"))
+        self.imports.add("@preview/mitex:0.2.6")
         self.body.append("#mi(`")
 
     def depart_math(self, node: nodes.math):
@@ -668,7 +667,7 @@ class TypstTranslator(nodes.NodeVisitor):
     def _enclose_admonition(node_name: str, title: str | None = None):
         def _visit(self, node: nodes.Element):
             version = metadata.version("rst2typst")
-            self.imports.add((f"@local/rst2typst:{version}", "admonition"))
+            self.imports.add(f"@local/rst2typst:{version}", "admonition")
 
             nonlocal title
             if isinstance(node.parent, nodes.Structural):
