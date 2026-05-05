@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import functools
+from importlib import metadata
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -666,8 +667,8 @@ class TypstTranslator(nodes.NodeVisitor):
     # ===========
     def _enclose_admonition(node_name: str, title: str | None = None):
         def _visit(self, node: nodes.Element):
-            module_path = Path(__file__).parent / "admonition.typ"
-            self.includes.add(module_path)
+            version = metadata.version("rst2typst")
+            self.imports.add((f"@local/rst2typst:{version}", "admonition"))
 
             nonlocal title
             if isinstance(node.parent, nodes.Structural):
@@ -678,7 +679,7 @@ class TypstTranslator(nodes.NodeVisitor):
                 title = node.children[title_idx].astext()
                 node.remove(node.children[title_idx])
 
-            self.body.append(f"{self._hi.indent}#admonition-callout(\n")
+            self.body.append(f"{self._hi.indent}#admonition(\n")
             self._hi.push("  ")
             self.body.append(f'{self._hi.indent}"{node_name}", "{title}",\n')
             self.body.append(f"{self._hi.indent}[")
