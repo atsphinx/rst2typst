@@ -55,7 +55,7 @@ def install_package(
     :param version: The version of local package.
     :param force: Flag to override package.
     """
-    logger.debug("Installing 'rst2typst' Typst package into local.")
+    logger.debug("Installing '%s' Typst package into local from %s.", name, str(source))
     dest = build_install_path(name, version)
     dest.parent.mkdir(exist_ok=True, parents=True)
     if not dest.exists():
