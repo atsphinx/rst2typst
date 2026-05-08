@@ -59,7 +59,7 @@ class Writer(BaseWriter):
 
     config_section = "typst writer"
 
-    visitor_attributes = {"body", "imports"}
+    visitor_attributes = {"body", "packages"}
 
     def __init__(self):
         super().__init__()
