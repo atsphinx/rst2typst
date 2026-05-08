@@ -1,5 +1,7 @@
 """PDF handler."""
 
+from pathlib import Path
+
 import typst
 from docutils.frontend import validate_boolean
 
@@ -29,7 +31,13 @@ class Writer(BaseWriter):
 
     def translate(self):
         super().translate()
-        install_package(force=self.document.settings.force_install_package)
+        source = Path(__file__).parent / "package"
+
+        install_package(
+            source,
+            "rst2typst",
+            force=self.document.settings.force_install_package,
+        )
         self.output = typst.compile(self.output.encode())
 
     def display_warnings(self):

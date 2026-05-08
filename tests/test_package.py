@@ -1,17 +1,11 @@
-from importlib import metadata
-
 import pytest
 
 from rst2typst import package as t
 
-version = metadata.version("rst2typst")
-
 
 def test_build_install_path():
-    fullpath = t.build_install_path()
-    assert str(fullpath.as_posix()).endswith(
-        f"typst/packages/local/rst2typst/{version}"
-    )
+    fullpath = t.build_install_path("rst2typst", "0.0.0")
+    assert str(fullpath.as_posix()).endswith("typst/packages/local/rst2typst/0.0.0")
 
 
 class Test_PackageRegistry:
