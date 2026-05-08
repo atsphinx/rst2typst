@@ -20,8 +20,6 @@ import platformdirs
 
 logger = logging.getLogger(__name__)
 
-package_dir = Path(__file__).parent / "package"
-
 
 def build_install_path(name: str, version: str | None = None) -> Path:
     """Retrieve path object of package Typst local package.
