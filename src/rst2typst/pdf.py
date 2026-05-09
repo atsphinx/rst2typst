@@ -1,11 +1,10 @@
 """PDF handler."""
 
-from pathlib import Path
 
 import typst
 from docutils.frontend import validate_boolean
 
-from .package import install_package
+from .package import install_package, package_dir
 from .writer import Writer as BaseWriter
 
 
@@ -31,10 +30,9 @@ class Writer(BaseWriter):
 
     def translate(self):
         super().translate()
-        source = Path(__file__).parent / "package"
 
         install_package(
-            source,
+            package_dir,
             "rst2typst",
             force=self.document.settings.force_install_package,
         )
