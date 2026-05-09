@@ -59,7 +59,7 @@ class Writer(BaseWriter):
 
     config_section = "typst writer"
 
-    visitor_attributes = {"body", "imports"}
+    visitor_attributes = {"body", "packages"}
 
     def __init__(self):
         super().__init__()
@@ -81,7 +81,7 @@ class Writer(BaseWriter):
         visitor: TypstTranslator = self.translator_class(self.document)
         self.document.walkabout(visitor)  # type: ignore[possibly-missing-attribute]
         self.parts["body"] = "".join(visitor.body)
-        self.parts["imports"] = visitor.imports.code
+        self.parts["imports"] = visitor.packages.code
         self.output = (
             Path(self.document.settings.template).read_text().format(**self.parts)
         )
@@ -144,7 +144,7 @@ class TypstTranslator(nodes.NodeVisitor):
     def __init__(self, document: nodes.document):
         super().__init__(document)
         # Properties that are used by external object.
-        self.imports = PackageRegistry()
+        self.packages = PackageRegistry()
         self.body = []
 
         # Properties to handle content for translation.
@@ -369,7 +369,7 @@ class TypstTranslator(nodes.NodeVisitor):
     # --------------------
     def visit_docinfo(self, node: nodes.docinfo):
         if not self.document.settings.no_import_local_package:
-            self.imports.add(self.local_package_name, "docinfo")
+            self.packages.add(self.local_package_name, "docinfo")
         self.body.append(f"{self._hi.indent}#docinfo()[\n")
         self._hi.push("  / ")
 
@@ -472,7 +472,7 @@ class TypstTranslator(nodes.NodeVisitor):
     # ----
     @block_on_structural
     def visit_math_block(self, node: nodes.math):
-        self.imports.add("@preview/mitex:0.2.6")
+        self.packages.add("@preview/mitex:0.2.6")
         self.body.append(f"{self._hi.indent}#mitex(`\n")
         self._hi.push("  ")
         self.body.append(self._hi.indent)
@@ -645,7 +645,7 @@ class TypstTranslator(nodes.NodeVisitor):
     depart_literal = _enclose_literal("depart")
 
     def visit_math(self, node: nodes.math):
-        self.imports.add("@preview/mitex:0.2.6")
+        self.packages.add("@preview/mitex:0.2.6")
         self.body.append("#mi(`")
 
     def depart_math(self, node: nodes.math):
@@ -689,7 +689,7 @@ class TypstTranslator(nodes.NodeVisitor):
     def _enclose_admonition(node_name: str, title: str | None = None):
         def _visit(self, node: nodes.Element):
             if not self.document.settings.no_import_local_package:
-                self.imports.add(self.local_package_name, "admonition")
+                self.packages.add(self.local_package_name, "admonition")
 
             nonlocal title
             if isinstance(node.parent, nodes.Structural):
