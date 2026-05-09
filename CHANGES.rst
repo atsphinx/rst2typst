@@ -1,3 +1,20 @@
+v0.5.0
+======
+
+:Date: 2026-05-09 (Asia/Tokyo)
+
+Breaking changes
+----------------
+
+* Rename ``imports`` property to ``packages`` in ``TypstTranslator``. [ `#18`_ ]
+
+Features
+--------
+
+* Open ``build_install_path`` and ``install_package`` as public API for external libraries. [ `#18`_ ]
+
+.. _#18: https://github.com/atsphinx/rst2typst/pull/18
+
 v0.4.0
 ======
 
