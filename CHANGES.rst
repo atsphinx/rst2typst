@@ -1,3 +1,13 @@
+v0.5.1
+======
+
+:Date: 2026-05-09 (Asia/Tokyo)
+
+Fixes
+-----
+
+* Define package directory as a public variable.
+
 v0.5.0
 ======
 
