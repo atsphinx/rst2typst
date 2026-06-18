@@ -169,9 +169,9 @@ class TypstTranslator(nodes.NodeVisitor):
 
         return _block_on_structural
 
-    # ========================================
-    # The visitors and deparers for plain text
-    # ========================================
+    # =========================================
+    # The visitors and departers for plain text
+    # =========================================
 
     def visit_Text(self, node: nodes.Text):
         LITERAL_NODES = (
@@ -199,9 +199,9 @@ class TypstTranslator(nodes.NodeVisitor):
     def depart_Text(self, node: nodes.Text):
         pass
 
-    # ===========================================================
-    # The visitors and deparers for basic reStructuredText syntax
-    # ===========================================================
+    # ============================================================
+    # The visitors and departers for basic reStructuredText syntax
+    # ============================================================
     #
     # They are sorted by these rules:
     #
@@ -675,9 +675,9 @@ class TypstTranslator(nodes.NodeVisitor):
     def depart_target(self, node: nodes.target):
         pass
 
-    # =========================================================
-    # The visitors and deparers for reStructuredText Directives
-    # =========================================================
+    # ==========================================================
+    # The visitors and departers for reStructuredText Directives
+    # ==========================================================
     #
     # They are sorted by these rules:
     #
@@ -812,9 +812,9 @@ class TypstTranslator(nodes.NodeVisitor):
             self.body.append("\n")
         raise nodes.SkipNode
 
-    # ====================================================
-    # The visitors and deparers for reStructuredText Roles
-    # ====================================================
+    # =====================================================
+    # The visitors and departers for reStructuredText Roles
+    # =====================================================
     #
     # They are sorted by these rules:
     #
