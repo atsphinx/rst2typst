@@ -56,6 +56,72 @@ List table
    .. literalinclude:: list-table.typ.txt
       :language: typst
 
+List table with autolayout
+--------------------------
+
+.. tab-set-code::
+
+   .. literalinclude:: list-table-autolayout.rst.txt
+      :language: rst
+
+   .. literalinclude:: list-table-autolayout.typ.txt
+      :language: typst
+
+CSV table with autolayout
+-------------------------
+
+.. tab-set-code::
+
+   .. literalinclude:: csv-table-autolayout.rst.txt
+      :language: rst
+
+   .. literalinclude:: csv-table-autolayout.typ.txt
+      :language: typst
+
+CSV table with "auto" keyword
+------------------------------
+
+.. tab-set-code::
+
+   .. literalinclude:: csv-table-auto-keyword.rst.txt
+      :language: rst
+
+   .. literalinclude:: csv-table-auto-keyword.typ.txt
+      :language: typst
+
+List table with "auto" keyword
+-------------------------------
+
+.. tab-set-code::
+
+   .. literalinclude:: list-table-auto-keyword.rst.txt
+      :language: rst
+
+   .. literalinclude:: list-table-auto-keyword.typ.txt
+      :language: typst
+
+Simple table with explicit widths
+----------------------------------
+
+.. tab-set-code::
+
+   .. literalinclude:: simple-table-with-widths.rst.txt
+      :language: rst
+
+   .. literalinclude:: simple-table-with-widths.typ.txt
+      :language: typst
+
+Grid table with "grid" widths keyword
+--------------------------------------
+
+.. tab-set-code::
+
+   .. literalinclude:: grid-table-with-widths.rst.txt
+      :language: rst
+
+   .. literalinclude:: grid-table-with-widths.typ.txt
+      :language: typst
+
 References
 ==========
 
