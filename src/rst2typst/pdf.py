@@ -49,6 +49,10 @@ class Writer(BaseWriter):
             force=self.document.settings.force_install_package,
         )
         font_paths = self.document.settings.font_paths
+        if isinstance(font_paths, str):
+            font_paths = [font_paths]
+        else:
+            font_paths = list(font_paths)
         env_font_paths = os.environ.get("TYPST_FONT_PATHS")
         if env_font_paths:
             font_paths += env_font_paths.split(os.pathsep)

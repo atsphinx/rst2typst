@@ -32,6 +32,11 @@ def test_font_paths_from_args():
     assert mock.call_args.kwargs["font_paths"] == ["/tmp/fonts"]
 
 
+def test_font_paths_from_args_str():
+    mock = _publish(font_paths="/tmp/fonts")
+    assert mock.call_args.kwargs["font_paths"] == ["/tmp/fonts"]
+
+
 def test_font_paths_from_env(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setenv(
         "TYPST_FONT_PATHS", os.pathsep.join(["/opt/fonts", "/tmp/fonts"])
