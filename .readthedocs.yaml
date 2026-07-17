@@ -1,0 +1,31 @@
+version: 2
+
+formats:
+  - html
+
+python:
+  install:
+    - method: uv
+      command: sync
+      extras:
+        - 'pdf'
+      groups:
+        - 'docs'
+
+build:
+  os: ubuntu-lts-latest
+  tools:
+    python: '3.10'
+  jobs:
+    post_build:
+      - mkdir -p $READTHEDOCS_OUTPUT/html
+      - >
+        uv run rst2typstpdf
+        --force-install-package
+        --page-break-level=1
+        --template=./template.txt
+        demo/index.rst docs/_static/demo.pdf
+
+sphinx:
+  builder: 'dirhtml'
+  path: './docs'
