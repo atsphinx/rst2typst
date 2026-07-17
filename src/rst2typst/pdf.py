@@ -3,7 +3,7 @@
 import os
 
 import typst
-from docutils.frontend import validate_boolean
+from docutils.frontend import validate_boolean, validate_comma_separated_list
 
 from .package import install_package, package_dir
 from .writer import Writer as BaseWriter
@@ -30,9 +30,11 @@ class Writer(BaseWriter):
                 "List of directories where custom fonts are stored.",
                 ["--font-paths"],
                 {
-                    "action": "store",
+                    "action": "append",
                     "dest": "font_paths",
+                    "metavar": "<item[,item,...]>",
                     "default": [],
+                    "validator": validate_comma_separated_list,
                 },
             ),
         ),
@@ -46,7 +48,7 @@ class Writer(BaseWriter):
             "rst2typst",
             force=self.document.settings.force_install_package,
         )
-        font_paths = list(self.document.settings.font_paths)
+        font_paths = self.document.settings.font_paths
         env_font_paths = os.environ.get("TYPST_FONT_PATHS")
         if env_font_paths:
             font_paths += env_font_paths.split(os.pathsep)
