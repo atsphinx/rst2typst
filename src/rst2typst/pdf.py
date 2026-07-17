@@ -47,8 +47,9 @@ class Writer(BaseWriter):
             force=self.document.settings.force_install_package,
         )
         font_paths = list(self.document.settings.font_paths)
-        if "TYPST_FONT_PATHS" in os.environ:
-            font_paths += os.environ["TYPST_FONT_PATHS"].split(os.pathsep)
+        env_font_paths = os.environ.get("TYPST_FONT_PATHS")
+        if env_font_paths:
+            font_paths += env_font_paths.split(os.pathsep)
         self.output = typst.compile(self.output.encode(), font_paths=font_paths)
 
     def display_warnings(self):
