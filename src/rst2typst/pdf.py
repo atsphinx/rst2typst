@@ -27,7 +27,7 @@ class Writer(BaseWriter):
                 },
             ),
             (
-                "List of directories stored custom fonts.",
+                "List of directories where custom fonts are stored.",
                 ["--font-paths"],
                 {
                     "action": "store",

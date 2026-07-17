@@ -75,13 +75,13 @@ Options
 These are same from options for :ref:`cli-rst2typst` command.
 
 --font-paths
-  List of directories stored custom fonts.
+  List of directories where custom fonts are stored.
 
   :Type: List of string
   :Default: Empty list ( ``[]`` )
 
-  This option sets folders that have font files beside  folder installing system fonts.
-  You should pass folder path if you want to use extra fonts when generating pdf.
+  This option specifies folders that contain custom font files in addition to the system font folders.
+  You should pass a folder path if you want to use extra fonts when generating a PDF.
 
 Examples
 ========
