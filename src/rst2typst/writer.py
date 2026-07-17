@@ -17,6 +17,9 @@ from .package import PackageRegistry
 if TYPE_CHECKING:
     from typing import Callable, Literal
 
+# Version of the @preview/mitex Typst package to transform LaTeX math syntax
+# to Typst.
+MITEX_VERSION = "0.2.7"
 
 class Writer(BaseWriter):
     supported = ("typst",)
@@ -166,9 +169,9 @@ class TypstTranslator(nodes.NodeVisitor):
 
         return _block_on_structural
 
-    # ========================================
-    # The visitors and deparers for plain text
-    # ========================================
+    # =========================================
+    # The visitors and departers for plain text
+    # =========================================
 
     def visit_Text(self, node: nodes.Text):
         LITERAL_NODES = (
@@ -196,9 +199,9 @@ class TypstTranslator(nodes.NodeVisitor):
     def depart_Text(self, node: nodes.Text):
         pass
 
-    # ===========================================================
-    # The visitors and deparers for basic reStructuredText syntax
-    # ===========================================================
+    # ============================================================
+    # The visitors and departers for basic reStructuredText syntax
+    # ============================================================
     #
     # They are sorted by these rules:
     #
@@ -472,7 +475,7 @@ class TypstTranslator(nodes.NodeVisitor):
     # ----
     @block_on_structural
     def visit_math_block(self, node: nodes.math):
-        self.packages.add("@preview/mitex:0.2.6")
+        self.packages.add(f"@preview/mitex:{MITEX_VERSION}")
         self.body.append(f"{self._hi.indent}#mitex(`\n")
         self._hi.push("  ")
         self.body.append(self._hi.indent)
@@ -645,7 +648,7 @@ class TypstTranslator(nodes.NodeVisitor):
     depart_literal = _enclose_literal("depart")
 
     def visit_math(self, node: nodes.math):
-        self.packages.add("@preview/mitex:0.2.6")
+        self.packages.add(f"@preview/mitex:{MITEX_VERSION}")
         self.body.append("#mi(`")
 
     def depart_math(self, node: nodes.math):
@@ -672,9 +675,9 @@ class TypstTranslator(nodes.NodeVisitor):
     def depart_target(self, node: nodes.target):
         pass
 
-    # =========================================================
-    # The visitors and deparers for reStructuredText Directives
-    # =========================================================
+    # ==========================================================
+    # The visitors and departers for reStructuredText Directives
+    # ==========================================================
     #
     # They are sorted by these rules:
     #
@@ -809,9 +812,9 @@ class TypstTranslator(nodes.NodeVisitor):
             self.body.append("\n")
         raise nodes.SkipNode
 
-    # ====================================================
-    # The visitors and deparers for reStructuredText Roles
-    # ====================================================
+    # =====================================================
+    # The visitors and departers for reStructuredText Roles
+    # =====================================================
     #
     # They are sorted by these rules:
     #
