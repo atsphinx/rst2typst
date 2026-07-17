@@ -1,5 +1,6 @@
 """PDF handler."""
 
+import os
 
 import typst
 from docutils.frontend import validate_boolean
@@ -25,6 +26,15 @@ class Writer(BaseWriter):
                     "validator": validate_boolean,
                 },
             ),
+            (
+                "List of directories stored custom fonts.",
+                ["--font-paths"],
+                {
+                    "action": "store",
+                    "dest": "font_paths",
+                    "default": [],
+                },
+            ),
         ),
     )
 
@@ -36,7 +46,10 @@ class Writer(BaseWriter):
             "rst2typst",
             force=self.document.settings.force_install_package,
         )
-        self.output = typst.compile(self.output.encode())
+        font_paths = list(self.document.settings.font_paths)
+        if "TYPST_FONT_PATHS" in os.environ:
+            font_paths += os.environ["TYPST_FONT_PATHS"].split(os.pathsep)
+        self.output = typst.compile(self.output.encode(), font_paths=font_paths)
 
     def display_warnings(self):
         pass
