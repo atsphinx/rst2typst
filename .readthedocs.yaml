@@ -1,0 +1,27 @@
+version: 2
+
+python:
+  install:
+    - method: uv
+      command: sync
+      extras:
+        - 'pdf'
+      groups:
+        - 'docs'
+
+build:
+  os: ubuntu-lts-latest
+  tools:
+    python: '3.10'
+  jobs:
+    pre_build:
+      - >
+        uv run rst2typstpdf
+        --force-install-package
+        --page-break-level=1
+        --template=demo/template.txt
+        demo/index.rst docs/_static/demo.pdf
+
+sphinx:
+  builder: 'dirhtml'
+  configuration: 'docs/conf.py'
