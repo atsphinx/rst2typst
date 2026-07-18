@@ -1,0 +1,23 @@
+#figure([
+  #table(
+    columns: (10fr, 10fr, 15fr),
+    table.header(
+      [A],
+      [B],
+      [A and B],
+    ),
+    [False],
+    [False],
+    [False],
+    [True],
+    [False],
+    [False],
+    [False],
+    [True],
+    [False],
+    [True],
+    [True],
+    [True],
+  )],
+  caption: [Truth table with explicit widths],
+)

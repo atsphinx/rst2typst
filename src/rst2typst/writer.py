@@ -543,11 +543,19 @@ class TypstTranslator(nodes.NodeVisitor):
         self.body.append("\n")
 
     def visit_tgroup(self, node: nodes.tgroup):
-        cols = [
-            f"{colspec['colwidth']}fr" if colspec != "auto" else "auto"
-            for colspec in node.findall(nodes.colspec)
-        ]
-        self.body.append(f"{self._hi.indent}columns: ({', '.join(cols)}),\n")
+        table_node = node.parent
+        colwidths_given = "colwidths-given" in table_node.get("classes", [])
+
+        if colwidths_given:
+            # Use explicit fractional widths when the author specified them.
+            cols = [
+                f"{colspec['colwidth']}fr" for colspec in node.findall(nodes.colspec)
+            ]
+            self.body.append(f"{self._hi.indent}columns: ({', '.join(cols)}),\n")
+        else:
+            # Typst defaults to columns: 1, so we must always emit the column
+            # count; the integer shorthand sizes all columns automatically.
+            self.body.append(f"{self._hi.indent}columns: {node['cols']},\n")
 
     def depart_tgroup(self, node: nodes.tgroup):
         pass

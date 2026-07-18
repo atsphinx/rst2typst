@@ -1,0 +1,23 @@
+#figure([
+  #table(
+    columns: (7fr, 7fr, 11fr),
+    table.header(
+      [A],
+      [B],
+      [A and B],
+    ),
+    [False],
+    [False],
+    [False],
+    [True],
+    [False],
+    [False],
+    [False],
+    [True],
+    [False],
+    [True],
+    [True],
+    [True],
+  )],
+  caption: [Truth table with grid-derived widths],
+)

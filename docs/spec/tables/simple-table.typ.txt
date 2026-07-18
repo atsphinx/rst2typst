@@ -1,5 +1,5 @@
 #table(
-  columns: (5fr, 5fr, 7fr),
+  columns: 3,
   table.header(
     [A],
     [B],
