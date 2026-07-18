@@ -1,3 +1,25 @@
+v0.6.0
+======
+
+:Date: 2026-07-18 (Asia/Tokyo)
+
+Features
+--------
+
+* Support ``widths: auto`` option of ``table``, ``csv-table`` and ``list-table`` directives,
+  and use automatic column sizing by default. [ `#20`_ ]
+* Add ``--font-paths`` option and ``TYPST_FONT_PATHS`` environment variable to ``rst2typstpdf``
+  for using fonts that are not installed on the system. [ `#22`_ ]
+
+Others
+------
+
+* Update ``@preview/mitex`` Typst package to v0.2.7. [ `#19`_ ]
+
+.. _#19: https://github.com/atsphinx/rst2typst/pull/19
+.. _#20: https://github.com/atsphinx/rst2typst/pull/20
+.. _#22: https://github.com/atsphinx/rst2typst/pull/22
+
 v0.5.1
 ======
 
