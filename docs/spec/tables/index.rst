@@ -79,7 +79,7 @@ CSV table with autolayout
       :language: typst
 
 CSV table with "auto" keyword
-------------------------------
+-----------------------------
 
 .. tab-set-code::
 
@@ -90,7 +90,7 @@ CSV table with "auto" keyword
       :language: typst
 
 List table with "auto" keyword
--------------------------------
+------------------------------
 
 .. tab-set-code::
 
@@ -101,7 +101,7 @@ List table with "auto" keyword
       :language: typst
 
 Simple table with explicit widths
-----------------------------------
+---------------------------------
 
 .. tab-set-code::
 
@@ -112,7 +112,7 @@ Simple table with explicit widths
       :language: typst
 
 Grid table with "grid" widths keyword
---------------------------------------
+-------------------------------------
 
 .. tab-set-code::
 
